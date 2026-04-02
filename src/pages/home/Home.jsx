@@ -4,7 +4,6 @@ import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import { FiSearch, FiMapPin } from 'react-icons/fi';
 import { FaArrowRight, FaChevronLeft, FaChevronRight, FaQuoteLeft  } from 'react-icons/fa';
-import axios from 'axios';
 import SearchForm from '../../components/SearchForm';
 import api from '../../api/api';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -270,10 +269,11 @@ const JobBoardHeader = () => {
         </div>
 
         <div className="job-board-header__cta">
-          <a href="/register" className="job-board-header__button">
+          <Link to="/register" className="job-board-header__button">
             <span className="job-board-header__button-text">Register Now</span>
             <span className="job-board-header__button-icon">→</span>
-          </a>
+              
+          </Link>
         </div>
       </div>
     </div>
@@ -318,14 +318,6 @@ const JobCard = ({ job }) => (
       {job.description.substring(0, 160)}...
     </p>
 
-    {job.salary && (
-      <div className="salary-info">
-        <span className="salary-amount">
-          {job.salary_currency} {job.salary.toLocaleString()}/{job.salary_unit}
-        </span>
-        <span className="salary-label">Estimated Salary</span>
-      </div>
-    )}
 
     <div className="job-footer">
       <span className="post-date">
