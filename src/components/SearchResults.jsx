@@ -46,9 +46,9 @@ const SearchResults = () => {
     fetchSearchResults();
   }, [searchTerm, locationTerm, categoryTerm, industryTerm, jobTypeTerm, sortBy]);
 
-  const removeFilter = (filterType) => {
+  const removeFilter = () => {
     // Implementation to remove a filter
-    console.log(`Remove filter: ${filterType}`);
+
   };
 
   const activeFilters = [

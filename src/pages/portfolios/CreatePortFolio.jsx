@@ -43,7 +43,7 @@ const CreatePortFolio = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Sending to backend:", formData); // ✅ log here
+
   
     try {
       await api.post('/portfolios', formData, { withCredentials: true });

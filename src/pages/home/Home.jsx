@@ -13,26 +13,11 @@ import {
   faTractor,
   faChartLine,
   faHeartbeat,
-  faGraduationCap,
-  faHammer,
-  faUtensils,
-  faMoneyBillWave,
   faIndustry,
   faMicrochip,
-  faShoppingBag,
-  faCar,
-  faPlane,
-  faTshirt,
-  faFilm,
   faMapMarkerAlt,
   faCity,
   faBuilding,
-  faUniversity,
-  faTree,
-  faMountain,
-  faWater,
-  faStore,
-  faWarehouse,
   faArrowRight,
 } from '@fortawesome/free-solid-svg-icons';
 import { FaLinkedin, FaTwitter, FaGithub } from 'react-icons/fa';
@@ -452,7 +437,7 @@ const CareerAdviceSlider = () => {
       setCurrentSlide(prev => (prev + 1) % careerTips.length);
     }, 8000);
     return () => clearInterval(interval);
-  }, []);
+  }, [careerTips.length]);
 
   const nextSlide = () => {
     setCurrentSlide(prev => (prev + 1) % careerTips.length);
@@ -775,14 +760,14 @@ const NewsFeed = () => {
 
   const handleCardClick = (articleId, e) => {
     if (!e.target.classList.contains('news-card__read-more')) {
-      console.log(`Navigating to article ${articleId}`);
+
       // window.location.href = `/articles/${articleId}`;
     }
   };
 
   const handleReadMore = (articleId, e) => {
     e.stopPropagation();
-    console.log(`Read more clicked for article ${articleId}`);
+
     // window.location.href = `/articles/${articleId}`;
   };
 
