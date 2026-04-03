@@ -23,6 +23,7 @@ const SearchResults = () => {
   useEffect(() => {
     const fetchSearchResults = async () => {
       try {
+        setLoading(true);
         const response = await api.get('/search', {
           params: {
             search: searchTerm,
@@ -34,10 +35,14 @@ const SearchResults = () => {
           },
         });
 
-        setJobs(response.data.jobs || []);
-        setPortfolios(response.data.portfolios || []);
+        // Defensive alignment with standardized backend format: { data: { jobs: [], portfolios: [] } }
+        const data = response.data || {};
+        setJobs(Array.isArray(data.jobs) ? data.jobs : []);
+        setPortfolios(Array.isArray(data.portfolios) ? data.portfolios : []);
       } catch (error) {
         console.error('Search fetch failed:', error);
+        setJobs([]);
+        setPortfolios([]);
       } finally {
         setLoading(false);
       }
@@ -102,10 +107,10 @@ const SearchResults = () => {
           </div>
         </div>
         
-        {jobs.length === 0 ? (
+        {Array.isArray(jobs) && jobs.length === 0 ? (
           <p>No job results found. Try adjusting your search criteria.</p>
         ) : (
-          jobs.map((job) => (
+          Array.isArray(jobs) && jobs.map((job) => (
             <div key={job.id} className="result-card job-card">
               <div className="job-header">
                 <div>
@@ -145,10 +150,10 @@ const SearchResults = () => {
           <h3>👤 Portfolios ({portfolios.length})</h3>
         </div>
         
-        {portfolios.length === 0 ? (
+        {Array.isArray(portfolios) && portfolios.length === 0 ? (
           <p>No portfolio results found. Try adjusting your search criteria.</p>
         ) : (
-          portfolios.map((portfolio) => (
+          Array.isArray(portfolios) && portfolios.map((portfolio) => (
             <div key={portfolio.id} className="result-card portfolio-card">
               <h4>{portfolio.full_name}</h4>
               <p>{portfolio.profession_title} — {portfolio.location}</p>

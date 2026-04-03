@@ -14,10 +14,12 @@ const UserManagement = () => {
 
   const fetchUsers = async () => {
     try {
-      const res = await api.get("/admin/users"); // Backend route
-      setUsers(res.data);
+      const res = await api.get("/admin/users");
+      const data = res.data || [];
+      setUsers(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error(err);
+      setUsers([]);
     }
   };
 
@@ -30,7 +32,7 @@ const UserManagement = () => {
     }
   };
 
-  const filteredUsers = users.filter((user) => {
+  const filteredUsers = Array.isArray(users) ? users.filter((user) => {
     return (
       (searchTerm === "" ||
         user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -38,7 +40,7 @@ const UserManagement = () => {
       (roleFilter === "" || user.role === roleFilter) &&
       (statusFilter === "" || user.status === statusFilter)
     );
-  });
+  }) : [];
 
   return (
     <div className="user-management">
@@ -67,19 +69,19 @@ const UserManagement = () => {
     
 <div className="stats-overview">
   <div className="stat-card total-users">
-    <div className="stat-number">{users.length}</div>
+    <div className="stat-number">{Array.isArray(users) ? users.length : 0}</div>
     <div className="stat-label">Total Users</div>
   </div>
   <div className="stat-card active-users">
-    <div className="stat-number">{users.filter(u => u.status === 'active').length}</div>
+    <div className="stat-number">{Array.isArray(users) ? users.filter(u => u.status === 'active').length : 0}</div>
     <div className="stat-label">Active Users</div>
   </div>
   <div className="stat-card suspended-users">
-    <div className="stat-number">{users.filter(u => u.status === 'suspended').length}</div>
+    <div className="stat-number">{Array.isArray(users) ? users.filter(u => u.status === 'suspended').length : 0}</div>
     <div className="stat-label">Suspended</div>
   </div>
   <div className="stat-card admin-users">
-    <div className="stat-number">{users.filter(u => u.role === 'admin').length}</div>
+    <div className="stat-number">{Array.isArray(users) ? users.filter(u => u.role === 'admin').length : 0}</div>
     <div className="stat-label">Admins</div>
   </div>
 </div>

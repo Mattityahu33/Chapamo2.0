@@ -59,11 +59,16 @@ const JobsList = () => {
                     }
                 });
                 
-                setJobs(response.data);
+                // Defensive state update: Always ensure an array is set
+                // Alignment with backend format: { success, data: [] }
+                setJobs(response.data || []);
                 setError(null);
                 setVisibleCount(9);
             } catch (err) {
-                setError(err.response?.data?.message || err.message);
+                // Mandatory global error handling and state reset
+                setError("Failed to fetch jobs");
+                setJobs([]);
+                console.error("API Error:", err);
             } finally {
                 setLoading(false);
             }
@@ -89,27 +94,17 @@ const JobsList = () => {
         });
     };
 
-    // Loading skeleton
-    if (loading && jobs.length === 0) {
+    // Mandatory Loading UI (Standardized)
+    if (loading && (!jobs || jobs.length === 0)) {
         return (
-            <div className="jobs-page">
+            <div className="jobs-page loading-state">
                 <div className="jobs-header">
-                    <div className="header-content">
-                        <h1 className="page-title">
-                            <span className="gradient-text">Find Your</span> Dream Job
-                        </h1>
-                        <p className="page-subtitle">
-                            Discover opportunities that match your skills and aspirations
-                        </p>
-                    </div>
+                    <h1 className="page-title">Loading Jobs...</h1>
                 </div>
                 <div className="jobs-grid skeleton-grid">
                     {[...Array(6)].map((_, i) => (
                         <div key={i} className="job-card skeleton">
                             <div className="skeleton-header"></div>
-                            <div className="skeleton-meta"></div>
-                            <div className="skeleton-description"></div>
-                            <div className="skeleton-footer"></div>
                         </div>
                     ))}
                 </div>
@@ -226,9 +221,9 @@ const JobsList = () => {
                         clearAllFilters={clearAllFilters} 
                     />
 
-                    {/* Jobs Grid */}
+                    {/* Jobs Grid with Mandatory Defensive Rendering */}
                     <div className="jobs-grid">
-                        {jobs.length > 0 ? (
+                        {Array.isArray(jobs) && jobs.length > 0 ? (
                             <>
                                 {jobs.slice(0, visibleCount).map(job => (
                                     <JobCard key={job.id} job={job} />
@@ -249,6 +244,7 @@ const JobsList = () => {
                                 )}
                             </>
                         ) : (
+                            // Fallback UI for No Data
                             <div className="no-jobs">
                                 <div className="no-jobs-icon">🔍</div>
                                 <h3>No jobs found</h3>

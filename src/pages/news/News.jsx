@@ -90,7 +90,7 @@ const News = () => {
       </div>
       
       <div className="news-container">
-        {newsData.slice(0, visibleItems).map((newsItem) => (
+        {Array.isArray(newsData) && newsData.slice(0, visibleItems).map((newsItem) => (
           <div className="news-card" key={newsItem.id}>
             <div className="news-image-container">
               <img 

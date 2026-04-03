@@ -74,7 +74,7 @@ const Hero = () => {
 
     try {
       const { data: results } = await api.get('/search', {
-        params: { term: searchTerm, location }
+        params: { search: searchTerm, location }
       });
 
       navigate('/search-results', {
@@ -328,11 +328,16 @@ const JobBoard = () => {
   useEffect(() => {
     const fetchJobs = async () => {
       try {
+        setLoading(true);
         const response = await api.get("/job_postings");
-        setJobs(response.data.slice(0, 12)); // Only get 12 latest jobs
+        // Defensive alignment with standardized backend format
+        const data = response.data || [];
+        setJobs(Array.isArray(data) ? data.slice(0, 12) : []);
+        setError(null);
       } catch (err) {
         console.error("Failed to fetch jobs", err);
         setError("Failed to load job postings.");
+        setJobs([]);
       } finally {
         setLoading(false);
       }
@@ -340,8 +345,9 @@ const JobBoard = () => {
     fetchJobs();
   }, []);
 
-  if (loading) return <p>Loading jobs...</p>;
-  if (error) return <p>{error}</p>;
+  // Mandatory Standardized Loading/Error UI
+  if (loading) return <div className="loading-state"><p>Loading jobs...</p></div>;
+  if (error) return <div className="error-state"><p>{error}</p></div>;
 
   const totalSlides = Math.ceil(jobs.length / jobsPerPage);
 
@@ -371,7 +377,7 @@ const JobBoard = () => {
           </button>
 
           <div className="job-board__grid-wrapper">
-            {displayedJobs.map((job) => (
+            {Array.isArray(displayedJobs) && displayedJobs.map((job) => (
               <JobCard key={job.id} job={job} />
             ))}
           </div>
@@ -509,12 +515,17 @@ const HomepagePortfolios = () => {
   useEffect(() => {
     const fetchPortfolios = async () => {
       try {
-        const res = await api.get('/portfolios?limit=12'); // Limit to 12
-        setPortfolios(res.data);
-        setLoading(false);
+        setLoading(true);
+        const res = await api.get('/portfolios?limit=12');
+        // Defensive alignment with standardized backend format
+        const data = res.data || [];
+        setPortfolios(Array.isArray(data) ? data : []);
+        setError(null);
       } catch (err) {
         console.error(err);
         setError('Failed to fetch portfolios. Please try again later.');
+        setPortfolios([]);
+      } finally {
         setLoading(false);
       }
     };
@@ -545,8 +556,9 @@ const HomepagePortfolios = () => {
     }
   };
 
-  if (loading) return <div className="loading">Loading portfolios...</div>;
-  if (error) return <div className="error-message">{error}</div>;
+  // Mandatory Standardized Loading/Error UI
+  if (loading) return <div className="loading-state"><p>Loading portfolios...</p></div>;
+  if (error) return <div className="error-state"><p>{error}</p></div>;
 
   return (
     <div className="homepage-portfolios">
@@ -570,7 +582,7 @@ const HomepagePortfolios = () => {
           ref={scrollContainerRef}
           onScroll={handleScroll}
         >
-          {portfolios.map((portfolio) => (
+          {Array.isArray(portfolios) && portfolios.map((portfolio) => (
             <div key={portfolio.id} className="portfolio-card">
               <img
                 src={portfolio.profile_image_url || '/default-profile.png'}

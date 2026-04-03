@@ -19,10 +19,14 @@ const SavedJobs = () => {
         const res = await api.get(`/saved-jobs`, {
           params: { userId: currentUser.id },
         });
-        setSavedJobs(res.data);
+        // Defensive alignment with standardized backend format
+        const data = res.data || [];
+        setSavedJobs(Array.isArray(data) ? data : []);
+        setError(null);
       } catch (err) {
         console.error("❌ Failed to fetch saved jobs:", err);
-        setError(err.response?.data?.error || "Failed to fetch saved jobs.");
+        setError("Failed to fetch saved jobs.");
+        setSavedJobs([]);
       } finally {
         setLoading(false);
       }
@@ -57,7 +61,7 @@ const SavedJobs = () => {
     <div className="saved-jobs-page">
       <h2>Your Saved Jobs</h2>
       <ul className="saved-jobs-list">
-        {savedJobs.map((job) => (
+        {Array.isArray(savedJobs) && savedJobs.map((job) => (
           <li key={job.saved_id} className="saved-job-item">
             <Link to={`/jobs/${job.job_id}`} className="saved-job-link">
               <h3>{job.title}</h3>

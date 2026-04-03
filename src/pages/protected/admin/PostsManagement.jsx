@@ -13,9 +13,11 @@ const PostManagement = () => {
   const fetchPendingJobs = async () => {
     try {
       const res = await api.get("/admin/pending", { withCredentials: true });
-      setPendingJobs(res.data);
+      const data = res.data || [];
+      setPendingJobs(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error(err);
+      setPendingJobs([]);
     }
   };
 
@@ -41,11 +43,11 @@ const PostManagement = () => {
 return (
   <div className="post-management">
     <h2>Pending Job Approvals</h2>
-    {pendingJobs.length === 0 ? (
+    {(Array.isArray(pendingJobs) && pendingJobs.length === 0) ? (
       <p>No pending jobs</p>
     ) : (
       <ul className="pending-jobs-list">
-        {pendingJobs.map((job) => (
+        {Array.isArray(pendingJobs) && pendingJobs.map((job) => (
           <li key={job.id} className="pending-job-item">
             <div className="job-header">
               <Link to={`/jobs/${job.id}`} className="job-title-link">

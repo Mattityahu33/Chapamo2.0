@@ -11,12 +11,17 @@ const PortFolios = () => {
   useEffect(() => {
     const fetchPortfolios = async () => {
       try {
+        setLoading(true);
         const res = await api.get('/portfolios');
-        setPortfolios(res.data);
-        setLoading(false);
+        // Defensive alignment with standardized backend format
+        const data = res.data || [];
+        setPortfolios(Array.isArray(data) ? data : []);
+        setError(null);
       } catch (err) {
         console.error(err);
         setError('Failed to fetch portfolios. Please try again later.');
+        setPortfolios([]);
+      } finally {
         setLoading(false);
       }
     };
@@ -31,7 +36,7 @@ const PortFolios = () => {
     <div className="portfolios-container">
       <h2 className="portfolios-title">Portfolios</h2>
       <div className="portfolios-grid">
-        {portfolios.map((portfolio) => (
+        {Array.isArray(portfolios) && portfolios.map((portfolio) => (
           <div key={portfolio.id} className="portfolio-card">
             <img
               src={portfolio.profile_image_url || '/default-profile.png'}

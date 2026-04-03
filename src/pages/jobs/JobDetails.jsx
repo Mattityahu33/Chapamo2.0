@@ -15,7 +15,7 @@ FaArrowLeft,
 FaExternalLinkAlt
 } from 'react-icons/fa';
 
-import { motion } from 'framer-motion'; 
+// import { motion } from 'framer-motion'; 
 import './JobDetails.css';
 
 const JobDetails = () => {
@@ -40,9 +40,12 @@ const fetchSimilarJobs = async (category) => {
     const res = await api.get(
         `/job_postings?category=${encodeURIComponent(category)}&exclude=${id}&limit=4`
     );
-    setSimilarJobs(res.data);
+    // Defensive alignment with standardized backend format
+    const data = res.data || [];
+    setSimilarJobs(Array.isArray(data) ? data : []);
     } catch (err) {
     console.error('❌ Failed to fetch similar jobs:', err);
+    setSimilarJobs([]);
     } finally {
     setSimilarLoading(false);
     }
@@ -52,7 +55,8 @@ const fetchJobDetails = async () => {
     try {
     setLoading(true);
     const res = await api.get(`/job_postings/${id}`);
-    setJob(res.data);
+    // Defensive assignment for single item
+    setJob(res.data || null);
 
     // Load similar jobs
     if (res.data?.category) fetchSimilarJobs(res.data.category);
@@ -101,28 +105,20 @@ try {
 
     if (loading) return (
         <div className="job-details-loading">
-            <motion.div 
-                animate={{ rotate: 360 }}
-                transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                className="spinner"
-            ></motion.div>
+            <div className="spinner"></div>
             <p>Loading job details...</p>
         </div>
     );
 
     if (error) return (
-        <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="job-details-error"
-        >
+        <div className="job-details-error">
             <div className="error-icon">⚠️</div>
             <h3>Error Loading Job</h3>
             <p>{error}</p>
             <button onClick={() => navigate(-1)} className="back-button">
                 <FaArrowLeft /> Go Back
             </button>
-        </motion.div>
+        </div>
     );
 
     if (!job) return (
@@ -136,12 +132,7 @@ try {
     );
 
     return (
-        <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5 }}
-            className="job-details-container"
-        >
+        <div className="job-details-container">
             <div className="job-details-header">
                 <button onClick={() => navigate(-1)} className="back-button">
                     <FaArrowLeft /> Back to Jobs
@@ -287,7 +278,7 @@ try {
                             <div className="loading-spinner"></div>
                             <p>Loading similar jobs...</p>
                         </div>
-                    ) : similarJobs.length > 0 ? (
+                    ) : (Array.isArray(similarJobs) && similarJobs.length > 0) ? (
                         <div className="similar-jobs-grid">
                             {similarJobs.map(similarJob => (
                                 <Link to={`/jobs/${similarJob.id}`} key={similarJob.id} className="similar-job-card">
@@ -314,7 +305,7 @@ try {
                     )}
                 </div>
             </div>
-        </motion.div>
+        </div>
     );
 };
 
