@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { FiSearch, FiMapPin } from 'react-icons/fi';
 import { FaArrowRight, FaChevronLeft, FaChevronRight, FaQuoteLeft  } from 'react-icons/fa';
 import SearchForm from '../../components/SearchForm';
-import api from '../../api/api';
+import api from '../../restAPI/api';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
   faBriefcase,

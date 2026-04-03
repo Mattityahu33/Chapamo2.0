@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import api from '../../api/api';
+import api from '../../restAPI/api';
 import { Link } from 'react-router-dom';
 import './Jobs.css';
 import debounce from 'lodash/debounce';

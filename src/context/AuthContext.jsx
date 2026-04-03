@@ -1,4 +1,4 @@
-import api from "../api/api";
+import api from "../restAPI/api";
 import { createContext, useEffect, useState } from "react";
 
 export const AuthContext = createContext();

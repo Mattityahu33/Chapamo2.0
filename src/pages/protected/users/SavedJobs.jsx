@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from "react";
-import api from "../../../api/api";
+import api from "../../../restAPI/api";
 import { AuthContext } from "../../../context/AuthContext";
 import { Link } from "react-router-dom";
 import "./SavedJobs.css";

@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from 'react';
-import api from '../../api/api';
+import api from '../../restAPI/api';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
 import './CreatePortFolio.css';

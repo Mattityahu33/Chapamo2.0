@@ -8,22 +8,24 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const fetchAdminData = async () => {
-      try {
-        const res = await api.get("/auth/me", { withCredentials: true });
-        // Assuming backend returns user info including role, name, email
-        setAdminInfo(res.data);
-      } catch (err) {
-        setError("Failed to load admin data");
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
+useEffect(() => {
+  const fetchAdminData = async () => {
+    try {
+      const res = await api.get("/auth/me", { withCredentials: true });
 
-    fetchAdminData();
-  }, []);
+      // If backend returns { success, data }
+      setAdminInfo(res.data || res);
+
+    } catch (err) {
+      setError("Failed to load admin data");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchAdminData();
+}, []);
 
   if (loading) return <p>Loading admin dashboard...</p>;
   if (error) return <p className="error-message">{error}</p>;

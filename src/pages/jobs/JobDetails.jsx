@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import api from '../../api/api';
+import api from '../../restAPI/api';
 import { AuthContext } from '../../context/AuthContext';
 import { 
 FaBookmark, 

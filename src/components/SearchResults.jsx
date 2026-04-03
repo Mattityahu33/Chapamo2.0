@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useLocation, Link } from 'react-router-dom';
-import api from '../api/api';
+import api from '../restAPI/api';
 import "./SearchResults.css"
 
 const SearchResults = () => {
