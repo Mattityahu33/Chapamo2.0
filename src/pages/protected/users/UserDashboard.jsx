@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, Outlet, useNavigate } from "react-router-dom";
-import api from "../../../api/api";
+import api from "../../../restAPI/api";
 import "./UserDashboard.css";
 
 export default function UserDashboard() {

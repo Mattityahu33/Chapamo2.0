@@ -49,10 +49,13 @@ const Login = () => {
     }
 
     try {
-      const user = await login(formData);
+      const responsePayload = await login(formData);
+      
+      // ✅ Correctly handle the nested response from Axios/Backend
+      const userRole = responsePayload?.data?.role || responsePayload?.role;
 
       // Redirect based on role
-      if (user.role === "admin") {
+      if (userRole === "admin") {
         navigate("/admin");
       } else {
         navigate("/");
