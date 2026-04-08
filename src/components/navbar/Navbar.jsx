@@ -1,33 +1,81 @@
-import React, { useState, useEffect, useContext } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useState, useEffect, useContext, useRef } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
 import "./Navbar.css";
 
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
-  const [isMobileView, setIsMobileView] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
 
   const { currentUser, logout } = useContext(AuthContext);
   const navigate = useNavigate();
+  const location = useLocation();
+  const navRef = useRef(null);
+
+  useEffect(() => {
+    const handleScroll = () => setIsScrolled(window.scrollY > 16);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   useEffect(() => {
     const handleResize = () => {
-      setIsMobileView(window.innerWidth <= 960);
-      if (window.innerWidth > 960) setIsMobileMenuOpen(false);
+      if (window.innerWidth > 960) {
+        setIsMobileMenuOpen(false);
+        setActiveDropdown(null);
+      }
     };
-    handleResize();
+
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+    setActiveDropdown(null);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    if (!isMobileMenuOpen) {
+      document.body.style.overflow = "";
+      return;
+    }
+
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") {
+        setIsMobileMenuOpen(false);
+        setActiveDropdown(null);
+      }
+    };
+
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = "";
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isMobileMenuOpen]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (navRef.current && !navRef.current.contains(event.target)) {
+        setActiveDropdown(null);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(prev => !prev);
+    setIsMobileMenuOpen((prev) => !prev);
     setActiveDropdown(null);
   };
 
   const toggleDropdown = (dropdown) => {
-    setActiveDropdown(activeDropdown === dropdown ? null : dropdown);
+    setActiveDropdown((prev) => (prev === dropdown ? null : dropdown));
   };
 
   const closeAllMenus = () => {
@@ -40,100 +88,275 @@ const Navbar = () => {
       await logout();
       closeAllMenus();
       navigate("/");
-    } catch {
-      console.error("Logout failed");
+    } catch (error) {
+      console.error("Logout failed:", error);
     }
   };
 
-  const getUserInitial = () => {
-    return currentUser?.username?.[0].toUpperCase()
-      || currentUser?.email?.[0].toUpperCase()
-      || "U";
+  const isActive = (path) => {
+    if (path === "/") return location.pathname === "/";
+    return location.pathname.startsWith(path);
   };
 
-  const getUserColor = () => {
-    const colors = ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#9966FF", "#FF9F40", "#8AC249", "#EA5545"];
-    return colors[getUserInitial().charCodeAt(0) % colors.length];
-  };
+  const getUserInitial = () =>
+    currentUser?.username?.[0]?.toUpperCase() ||
+    currentUser?.email?.[0]?.toUpperCase() ||
+    "U";
+
+  const avatarColors = [
+    "#2563eb",
+    "#7c3aed",
+    "#db2777",
+    "#ea580c",
+    "#0891b2",
+    "#16a34a",
+    "#4f46e5",
+    "#dc2626",
+  ];
+
+  const getUserColor = () =>
+    avatarColors[getUserInitial().charCodeAt(0) % avatarColors.length];
 
   return (
-    <nav className="navbar">
+    <nav
+      ref={navRef}
+      className={`navbar ${isScrolled ? "navbar--scrolled" : ""}`}
+    >
       <div className="navbar__container">
-        <Link to="/" id="navbar__logo" onClick={closeAllMenus}>chapamo</Link>
+        <Link to="/" className="navbar__logo" onClick={closeAllMenus}>
+          <span className="navbar__logo-mark">
+            <span className="navbar__logo-icon">◈</span>
+          </span>
+          <span className="navbar__logo-text">Chapamo</span>
+        </Link>
 
-        <div className={`navbar__toggle ${isMobileMenuOpen ? "active" : ""}`} onClick={toggleMobileMenu}>
-          <span className="bar" />
-          <span className="bar" />
-          <span className="bar" />
-        </div>
+        <ul
+          id="mobile-navigation"
+          className={`navbar__menu ${isMobileMenuOpen ? "navbar__menu--open" : ""}`}
+        >
+          <li className="navbar__mobile-header" aria-hidden="true">
+            <span className="navbar__mobile-badge">Navigation</span>
+            <h4>Explore opportunities faster</h4>
+            <p>Jobs, portfolios, company updates, and your personal workspace.</p>
+          </li>
 
-        <ul className={`navbar__menu ${isMobileMenuOpen ? "active" : ""}`}>
-          <li><Link to="/" className="navbar__links" onClick={closeAllMenus}>Home</Link></li>
-          <li><Link to="/jobs" className="navbar__links" onClick={closeAllMenus}>Jobs</Link></li>
-          <li><Link to="/postjob" className="navbar__links" onClick={closeAllMenus}>Post a Job</Link></li>
+          <li>
+            <Link
+              to="/"
+              className={`navbar__link ${isActive("/") ? "navbar__link--active" : ""}`}
+              onClick={closeAllMenus}
+            >
+              Home
+            </Link>
+          </li>
 
-          <li className={`navbar__item dropdown ${activeDropdown === "portfolios" ? "active" : ""}`}>
-            <div className="navbar__links dropdown__trigger" onClick={() => toggleDropdown("portfolios")}>
-              Portfolios <i className="dropdown__arrow">▼</i>
-            </div>
-            <ul className="dropdown__menu">
-              <li><Link to="/portfolios" onClick={closeAllMenus}>Browse</Link></li>
-              <li><Link to="/create" onClick={closeAllMenus}>Create</Link></li>
+          <li>
+            <Link
+              to="/jobs"
+              className={`navbar__link ${isActive("/jobs") ? "navbar__link--active" : ""}`}
+              onClick={closeAllMenus}
+            >
+              Jobs
+            </Link>
+          </li>
+
+          <li>
+            <Link
+              to="/postjob"
+              className={`navbar__link ${isActive("/postjob") ? "navbar__link--active" : ""}`}
+              onClick={closeAllMenus}
+            >
+              Post a Job
+            </Link>
+          </li>
+
+          <li
+            className={`navbar__dropdown ${
+              activeDropdown === "portfolios" ? "navbar__dropdown--open" : ""
+            }`}
+          >
+            <button
+              type="button"
+              className={`navbar__link navbar__dropdown-trigger ${
+                isActive("/portfolios") || isActive("/create")
+                  ? "navbar__link--active"
+                  : ""
+              }`}
+              onClick={() => toggleDropdown("portfolios")}
+              aria-expanded={activeDropdown === "portfolios"}
+              aria-haspopup="true"
+            >
+              <span>Portfolios</span>
+              <span className="navbar__chevron">▾</span>
+            </button>
+
+            <ul className="navbar__dropdown-menu" role="menu">
+              <li role="none">
+                <Link to="/portfolios" onClick={closeAllMenus} role="menuitem">
+                  Browse Portfolios
+                </Link>
+              </li>
+              <li role="none">
+                <Link to="/create" onClick={closeAllMenus} role="menuitem">
+                  Create Portfolio
+                </Link>
+              </li>
             </ul>
           </li>
 
-          <li><Link to="/news" className="navbar__links" onClick={closeAllMenus}>News</Link></li>
-          <li><Link to="/about" className="navbar__links" onClick={closeAllMenus}>About</Link></li>
-          <li><Link to="/contact" className="navbar__links" onClick={closeAllMenus}>Contact</Link></li>
+          <li>
+            <Link
+              to="/news"
+              className={`navbar__link ${isActive("/news") ? "navbar__link--active" : ""}`}
+              onClick={closeAllMenus}
+            >
+              News
+            </Link>
+          </li>
+
+          <li>
+            <Link
+              to="/about"
+              className={`navbar__link ${isActive("/about") ? "navbar__link--active" : ""}`}
+              onClick={closeAllMenus}
+            >
+              About
+            </Link>
+          </li>
+
+          <li>
+            <Link
+              to="/contact"
+              className={`navbar__link ${isActive("/contact") ? "navbar__link--active" : ""}`}
+              onClick={closeAllMenus}
+            >
+              Contact
+            </Link>
+          </li>
 
           {currentUser ? (
-  <li className={`navbar__item dropdown ${activeDropdown === "user" ? "active" : ""}`}>
-    <div className="navbar__links dropdown__trigger user__trigger" onClick={() => toggleDropdown("user")}>
-      {currentUser.avatar ? (
-        <img src={currentUser.avatar} alt="User" className="navbar__user-avatar small" />
-      ) : (
-        <div
-          className="user-initial-avatar"
-          style={{
-            backgroundColor: getUserColor(),
-            color: "#fff",
-            borderRadius: "50%",
-            width: "32px",
-            height: "32px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontWeight: "bold",
-            fontSize: "1rem"
-          }}
-        >
-          {getUserInitial()}
-        </div>
-      )}
-      <i className="dropdown__arrow">▼</i>
-    </div>
-    <ul className="dropdown__menu">
-      <li>
-        <Link 
-          to={currentUser.role === "admin" ? "/admin" : "/user"} 
-          onClick={closeAllMenus}
-        >
-          Dashboard
-        </Link>
-      </li>
-      <li><button onClick={handleLogout} className="logout-button">Logout</button></li>
-    </ul>
-  </li>
-) : (
-  <li className="navbar__btn">
-    <div className="btn__container">
-      <Link to="/login" className="auth__btn login__btn" onClick={closeAllMenus}>Login</Link>
-      <Link to="/register" className="auth__btn register__btn" onClick={closeAllMenus}>Register</Link>
-    </div>
-  </li>
-)}
+            <li
+              className={`navbar__dropdown ${
+                activeDropdown === "user" ? "navbar__dropdown--open" : ""
+              }`}
+            >
+              <button
+                type="button"
+                className="navbar__link navbar__user-trigger"
+                onClick={() => toggleDropdown("user")}
+                aria-expanded={activeDropdown === "user"}
+                aria-haspopup="true"
+              >
+                {currentUser.avatar ? (
+                  <img
+                    src={currentUser.avatar}
+                    alt="User avatar"
+                    className="navbar__avatar-img"
+                  />
+                ) : (
+                  <span
+                    className="navbar__avatar"
+                    style={{ backgroundColor: getUserColor() }}
+                  >
+                    {getUserInitial()}
+                  </span>
+                )}
 
+                <span className="navbar__username">
+                  {currentUser.username || "Account"}
+                </span>
+                <span className="navbar__chevron">▾</span>
+              </button>
+
+              <ul className="navbar__dropdown-menu navbar__dropdown-menu--user" role="menu">
+                <li className="navbar__user-summary" aria-hidden="true">
+                  <div
+                    className="navbar__user-summary-avatar"
+                    style={{ backgroundColor: getUserColor() }}
+                  >
+                    {getUserInitial()}
+                  </div>
+                  <div>
+                    <strong>{currentUser.username || "User"}</strong>
+                    <span>{currentUser.email || "Signed in"}</span>
+                  </div>
+                </li>
+
+                <li role="none">
+                  <Link
+                    to={currentUser.role === "admin" ? "/admin" : "/user"}
+                    onClick={closeAllMenus}
+                    role="menuitem"
+                  >
+                    Dashboard
+                  </Link>
+                </li>
+
+                <li role="none">
+                  <Link
+                    to="/user/SavedJobs"
+                    onClick={closeAllMenus}
+                    role="menuitem"
+                  >
+                    Saved Jobs
+                  </Link>
+                </li>
+
+                <li className="navbar__dropdown-divider" role="separator" />
+
+                <li role="none">
+                  <button
+                    type="button"
+                    onClick={handleLogout}
+                    className="navbar__logout-btn"
+                    role="menuitem"
+                  >
+                    Sign Out
+                  </button>
+                </li>
+              </ul>
+            </li>
+          ) : (
+            <li className="navbar__auth">
+              <Link
+                to="/login"
+                className="navbar__link navbar__btn-login"
+                onClick={closeAllMenus}
+              >
+                Login
+              </Link>
+
+              <Link
+                to="/register"
+                className="navbar__btn-register"
+                onClick={closeAllMenus}
+              >
+                Get Started
+              </Link>
+            </li>
+          )}
         </ul>
+
+        <button
+          className={`navbar__toggle ${isMobileMenuOpen ? "navbar__toggle--open" : ""}`}
+          onClick={toggleMobileMenu}
+          aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
+          aria-expanded={isMobileMenuOpen}
+          aria-controls="mobile-navigation"
+          type="button"
+        >
+          <span className="navbar__bar" />
+          <span className="navbar__bar" />
+          <span className="navbar__bar" />
+        </button>
+
+        {isMobileMenuOpen && (
+          <div
+            className="navbar__backdrop"
+            onClick={closeAllMenus}
+            aria-hidden="true"
+          />
+        )}
       </div>
     </nav>
   );

@@ -1,49 +1,54 @@
+/* ============================================================
+   CHAPAMO — Application Layout
+   Design tokens live in index.css
+   ============================================================ */
 
-/**
- * CSS Reset - removes default margins and padding, sets border-box sizing
- */
- * {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  font-family: 'Kumbh Sans', sans-serif;
-}
-
-:root {
-  /* Color Palette */
-  --primary: #4361ee;        /* Main brand blue */
-  --primary-light: #5a75f1;  /* Lighter blue */
-  --secondary: #3f37c9;      /* Darker blue */
-  --accent: #ff0844;         /* Vibrant pink/red */
-  --accent-light: #ffb199;   /* Lighter accent */
-  --dark: #0d0101;           /* Almost black */
-  --light: #ffffff;          /* Pure white */
-  --gray: #f0f0f0;           /* Light gray */
-  --dark-gray: #333;         /* Dark gray */
-  
-  /* UI Variables */
-  --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-  --border-radius: 12px;
-  --border-radius-lg: 30px;
-  --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  --shadow-hover: 0 10px 20px rgba(0, 0, 0, 0.15);
-  --nav-height: 80px;
-}
-
-/* Ensure full height layout */
+/* Ensure full-height layout */
 html, body {
   height: 100%;
-  margin: 0;
-  padding: 0;
 }
 
 .page-wrapper {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  background-color: var(--neutral-50);
 }
 
 .content {
   flex: 1;
 }
 
+/* Legacy alias tokens — keeps older CSS files working */
+:root {
+  --primary:       var(--brand-primary);
+  --primary-light: var(--brand-primary-light);
+  --secondary:     var(--brand-primary-dark);
+  --accent:        var(--brand-accent);
+  --accent-light:  var(--brand-accent-light);
+  --dark:          var(--neutral-900);
+  --light:         #ffffff;
+  --gray:          var(--neutral-100);
+  --dark-gray:     var(--neutral-700);
+
+  /* Legacy UI Variables */
+  --transition:      var(--transition-base);
+  --border-radius:   var(--radius-lg);
+  --border-radius-lg: var(--radius-full);
+  --shadow:          var(--shadow-sm);
+  --shadow-hover:    var(--shadow-lg);
+  --nav-height:      var(--nav-height);
+}
+
+/* Page section spacing */
+section,
+.section {
+  padding-block: var(--space-16);
+}
+
+/* Horizontal rule */
+hr {
+  border: none;
+  border-top: 1px solid var(--neutral-200);
+  margin-block: var(--space-8);
+}

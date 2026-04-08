@@ -1,83 +1,130 @@
 import React from 'react';
-import './About.css'; // Tailor this to your style setup
-import { FaUsers, FaRocket, FaRegLightbulb } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
+import { FaGlobeAfrica, FaPeopleArrows, FaRegLightbulb, FaRocket, FaShieldAlt } from 'react-icons/fa';
+import './About.css';
+
+const valueCards = [
+  {
+    icon: <FaRegLightbulb />,
+    title: 'Mission-led product',
+    text: 'Chapamo exists to make opportunity easier to discover, present, and act on for both talent and employers.',
+  },
+  {
+    icon: <FaRocket />,
+    title: 'Built for momentum',
+    text: 'We reduce friction across hiring and self-presentation so people can move from discovery to action faster.',
+  },
+  {
+    icon: <FaShieldAlt />,
+    title: 'Trust by design',
+    text: 'Clear information architecture, strong presentation, and simple workflows help the platform feel credible and dependable.',
+  },
+];
+
+const offerItems = [
+  'Job discovery for active seekers and growing teams',
+  'Portfolio creation that helps professionals present their value clearly',
+  'A cleaner digital bridge between employers and talent in Zambia',
+  'A platform foundation that can expand into richer hiring workflows over time',
+];
 
 const About = () => {
   return (
     <div className="about-page">
       <section className="about-hero">
-        <div className="container">
-          <h1>About Tubombe</h1>
-          <p>Empowering individuals with tools to find jobs, showcase portfolios, and access AI-driven career guidance.</p>
+        <div className="container about-hero__grid">
+          <div className="about-hero__content">
+            <span className="badge badge-primary">About Chapamo</span>
+            <h1>We’re building a stronger bridge between talent, portfolios, and real opportunity.</h1>
+            <p>
+              Chapamo is designed to help professionals present themselves better and help
+              employers discover talent with more confidence, clarity, and speed.
+            </p>
+          </div>
+
+          <div className="about-hero__panel card">
+            <div className="about-hero__panel-item">
+              <FaGlobeAfrica />
+              <div>
+                <strong>Local relevance</strong>
+                <span>Designed around the realities of Zambia’s digital job market.</span>
+              </div>
+            </div>
+            <div className="about-hero__panel-item">
+              <FaPeopleArrows />
+              <div>
+                <strong>Two-sided value</strong>
+                <span>Useful for both people seeking work and companies hiring carefully.</span>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
-      <section className="about-mission">
-        <div className="container grid-3">
-          <div className="about-card">
-            <FaRegLightbulb className="icon" />
-            <h3>Our Mission</h3>
-            <p>
-              To bridge the gap between opportunity and talent by leveraging cutting-edge web technologies and artificial intelligence.
+      <section className="about-values">
+        <div className="container">
+          <div className="section-header">
+            <span className="section-header__eyebrow">Why It Matters</span>
+            <h2 className="section-header__title">A premium employment platform should feel useful, trustworthy, and focused.</h2>
+            <p className="section-header__subtitle">
+              The experience should help people make better decisions quickly, not fight through clutter.
             </p>
           </div>
-          <div className="about-card">
-            <FaRocket className="icon" />
-            <h3>Our Vision</h3>
-            <p>
-              To be Africa’s leading digital employment ecosystem by 2030, where every job seeker can connect with opportunity effortlessly.
-            </p>
-          </div>
-          <div className="about-card">
-            <FaUsers className="icon" />
-            <h3>Our Values</h3>
-            <p>
-              Transparency. Innovation. Impact. Community. We are committed to excellence and inclusive growth.
-            </p>
+
+          <div className="about-values__grid">
+            {valueCards.map((card) => (
+              <article key={card.title} className="about-value-card card">
+                <div className="about-value-card__icon">{card.icon}</div>
+                <h3>{card.title}</h3>
+                <p>{card.text}</p>
+              </article>
+            ))}
           </div>
         </div>
       </section>
 
       <section className="about-story">
-        <div className="container">
-          <h2>Our Story</h2>
-          <p>
-            Founded in Lusaka, Zambia, Tubombe started with a simple idea: simplify how people connect with job opportunities.
-            From our humble beginnings, we've grown into a multi-functional platform powered by AI, helping thousands of users
-            build their future. Our team is made up of developers, designers, and career advisors with one shared goal — digital empowerment.
-          </p>
-        </div>
-      </section>
+        <div className="container about-story__grid">
+          <div className="about-story__content">
+            <span className="section-header__eyebrow">Our Story</span>
+            <h2>From a simple idea to a clearer employment experience.</h2>
+            <p>
+              Chapamo started from a straightforward need: people should be able to find jobs,
+              present their experience, and connect with opportunity without navigating a confusing
+              interface. That belief shaped a platform that brings together jobs, portfolios, and a
+              more modern digital experience.
+            </p>
+            <p>
+              The result is a product direction centered on clarity, presentation quality, and a
+              stronger sense of confidence for both candidates and employers.
+            </p>
+          </div>
 
-      <section className="about-team">
-        <div className="container">
-          <h2>Meet the Team</h2>
-          <div className="team-grid">
-            {/* Replace with dynamic data if needed */}
-            <div className="team-member">
-              <img src="/images/founder.jpg" alt="Founder" />
-              <h4>Mattityahu</h4>
-              <p>Founder & Full-Stack Developer</p>
-            </div>
-            <div className="team-member">
-              <img src="/images/advisor.jpg" alt="Advisor" />
-              <h4>Grace N.</h4>
-              <p>Career Advisor</p>
-            </div>
-            <div className="team-member">
-              <img src="/images/ux.jpg" alt="UX Lead" />
-              <h4>Chanda K.</h4>
-              <p>UX/UI Lead</p>
-            </div>
+          <div className="about-story__panel card">
+            <h3>What the platform offers</h3>
+            <ul>
+              {offerItems.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
           </div>
         </div>
       </section>
 
       <section className="about-cta">
-        <div className="container">
-          <h2>Want to Partner with Us?</h2>
-          <p>We're open to collaborations, sponsorships, and partnerships that align with our mission. Let's build the future of work together.</p>
-          <a href="/contact" className="btn-primary">Contact Us</a>
+        <div className="container about-cta__card card">
+          <div>
+            <span className="section-header__eyebrow">Next Step</span>
+            <h2>Want to learn more or explore the platform in action?</h2>
+            <p>
+              Browse open roles, view professional portfolios, or reach out if you want to connect
+              around partnerships, product direction, or growth.
+            </p>
+          </div>
+          <div className="about-cta__actions">
+            <Link to="/jobs" className="btn btn-primary">Browse Jobs</Link>
+            <Link to="/contact" className="btn btn-outline">Contact Us</Link>
+          </div>
         </div>
       </section>
     </div>

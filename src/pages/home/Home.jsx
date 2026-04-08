@@ -1,59 +1,44 @@
-import React from 'react'
-import { useState, useEffect,useRef  } from 'react';
-import { Link } from 'react-router-dom';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { FaChevronLeft, FaChevronRight, FaQuoteLeft } from 'react-icons/fa';
 import { FiSearch, FiMapPin } from 'react-icons/fi';
-import { FaArrowRight, FaChevronLeft, FaChevronRight, FaQuoteLeft  } from 'react-icons/fa';
-import SearchForm from '../../components/SearchForm';
-import api from '../../restAPI/api';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { 
-  faBriefcase,
-  faLaptopCode,
-  faTractor,
-  faChartLine,
-  faHeartbeat,
-  faIndustry,
-  faMicrochip,
-  faMapMarkerAlt,
-  faCity,
-  faBuilding,
-  faArrowRight,
+import {
+  faBriefcase, faLaptopCode, faTractor, faChartLine,
+  faHeartbeat, faIndustry, faMicrochip, faMapMarkerAlt,
+  faCity, faBuilding, faArrowRight,
 } from '@fortawesome/free-solid-svg-icons';
-import { FaLinkedin, FaTwitter, FaGithub } from 'react-icons/fa';
-
+import api from '../../restAPI/api';
 import './Home.css';
 
-
-
+/* ============================================================
+   HOME PAGE
+   ============================================================ */
 function Home() {
   return (
-    <div>
+    <div className="home">
       <Hero />
-      <JobLinks /> 
-      <JobBoardHeader />
-      <JobBoard />
+      <StatsStrip />
+      <JobLinks />
+      <JobBoardSection />
       <CareerAdviceSlider />
       <HomepagePortfolios />
-      <NewsHeader />
-      <NewsFeed />
-      <JobPostingGuide/>
-      <VisionStatement/>
-    
+      <JobPostingGuide />
+      <VisionStatement />
     </div>
-  )
+  );
 }
 
-// Inside Hero.jsx or directly in your Home.jsx file
-
-
+/* ============================================================
+   HERO
+   ============================================================ */
 const slides = [
-  { image: '/images/hunter.jpg', alt: 'Diverse team working together' },
+  { image: '/images/hunter.jpg',      alt: 'Diverse team working together' },
   { image: '/images/networking.jpeg', alt: 'Professional workplace environment' },
-  { image: '/images/contact1.png', alt: 'Team collaboration meeting' }
+  { image: '/images/contact1.png',    alt: 'Team collaboration meeting' },
 ];
 
-const popularTags = ['Software Engineer', 'Marketing', 'Remote', 'Lusaka', 'Finance'];
+const popularTags = ['Software Engineer', 'Marketing', 'Remote', 'Lusaka', 'Finance', 'Healthcare'];
 
 const Hero = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -71,68 +56,111 @@ const Hero = () => {
   const handleSearch = async (e) => {
     e.preventDefault();
     if (!searchTerm.trim() && !location.trim()) return;
-
     try {
       const { data: results } = await api.get('/search', {
         params: { search: searchTerm, location }
       });
-
-      navigate('/search-results', {
-        state: { results, searchTerm, location }
-      });
+      navigate('/search-results', { state: { results, searchTerm, location } });
     } catch (error) {
       console.error('Search failed:', error.message);
     }
   };
 
+  const handleTagClick = (tag) => {
+    navigate(`/jobs?search=${encodeURIComponent(tag)}`);
+  };
+
   return (
-    <section className="hero" role="region" aria-label="Hero section with search and slideshow">
-      <div className="slideshow">
+    <section className="hero" aria-label="Hero — search and slideshow">
+      {/* Background Slideshow */}
+      <div className="hero__slideshow" aria-hidden="true">
         {slides.map((slide, index) => (
           <div
             key={index}
-            className={`slide ${index === currentSlide ? 'active' : ''}`}
+            className={`hero__slide ${index === currentSlide ? 'hero__slide--active' : ''}`}
             style={{ backgroundImage: `url(${slide.image})` }}
-            aria-hidden={index !== currentSlide}
           >
-            <div className="slide-overlay" />
-            <img src={slide.image} alt={slide.alt} className="visually-hidden" />
+            <div className="hero__slide-overlay" />
           </div>
         ))}
       </div>
 
-      <div className="hero-content">
-        <h1 className="hero-title">Find Your Dream Job in Zambia</h1>
-        <p className="hero-subtitle">
+      {/* Content */}
+      <div className="hero__content">
+        <div className="hero__badge">🇿🇲 Zambia's #1 Job Platform</div>
+        <h1 className="hero__title">
+          Find Your <span className="hero__title-accent">Dream Job</span><br />
+          in Zambia
+        </h1>
+        <p className="hero__subtitle">
           Discover thousands of job opportunities tailored to your skills and ambitions.
         </p>
 
-        {/* Reusable SearchForm */}
-        <SearchForm
-          searchTerm={searchTerm}
-          setSearchTerm={setSearchTerm}
-          location={location}
-          setLocation={setLocation}
-          onSubmit={handleSearch}
-          popularTags={popularTags}
-        />
+        {/* Search Form */}
+        <form className="hero__search" onSubmit={handleSearch}>
+          <div className="hero__search-field">
+            <FiSearch className="hero__search-icon" aria-hidden="true" />
+            <input
+              type="text"
+              placeholder="Job title, keyword, or company..."
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+              className="hero__search-input"
+              aria-label="Search jobs"
+            />
+          </div>
+          <div className="hero__search-divider" aria-hidden="true" />
+          <div className="hero__search-field">
+            <FiMapPin className="hero__search-icon" aria-hidden="true" />
+            <input
+              type="text"
+              placeholder="City or province..."
+              value={location}
+              onChange={e => setLocation(e.target.value)}
+              className="hero__search-input"
+              aria-label="Job location"
+            />
+          </div>
+          <button type="submit" className="hero__search-btn">
+            Search Jobs
+          </button>
+        </form>
+
+        {/* Popular Tags */}
+        <div className="hero__tags">
+          <span className="hero__tags-label">Popular:</span>
+          {popularTags.map(tag => (
+            <button key={tag} className="hero__tag" onClick={() => handleTagClick(tag)}>
+              {tag}
+            </button>
+          ))}
+        </div>
       </div>
 
-      <div className="slide-controls">
-        <button onClick={() => setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length)} aria-label="Previous slide">
+      {/* Slide Controls */}
+      <div className="hero__controls" aria-label="Slideshow controls">
+        <button
+          className="hero__ctrl-btn"
+          onClick={() => setCurrentSlide(p => (p - 1 + slides.length) % slides.length)}
+          aria-label="Previous slide"
+        >
           <FaChevronLeft />
         </button>
-        <div className="slide-indicators">
-          {slides.map((_, index) => (
+        <div className="hero__dots">
+          {slides.map((_, i) => (
             <button
-              key={index}
-              className={`indicator ${index === currentSlide ? 'active' : ''}`}
-              onClick={() => setCurrentSlide(index)}
-              aria-label={`Go to slide ${index + 1}`}
+              key={i}
+              className={`hero__dot ${i === currentSlide ? 'hero__dot--active' : ''}`}
+              onClick={() => setCurrentSlide(i)}
+              aria-label={`Slide ${i + 1}`}
             />
           ))}
         </div>
-        <button onClick={() => setCurrentSlide((prev) => (prev + 1) % slides.length)} aria-label="Next slide">
+        <button
+          className="hero__ctrl-btn"
+          onClick={() => setCurrentSlide(p => (p + 1) % slides.length)}
+          aria-label="Next slide"
+        >
           <FaChevronRight />
         </button>
       </div>
@@ -140,185 +168,204 @@ const Hero = () => {
   );
 };
 
+/* ============================================================
+   STATS STRIP
+   ============================================================ */
+const stats = [
+  { value: '500+', label: 'Active Jobs' },
+  { value: '200+', label: 'Professionals' },
+  { value: '50+',  label: 'Companies' },
+  { value: '10+',  label: 'Industries' },
+];
 
+const StatsStrip = () => (
+  <div className="stats-strip">
+    {stats.map((s, i) => (
+      <div key={i} className="stats-strip__item">
+        <span className="stats-strip__value">{s.value}</span>
+        <span className="stats-strip__label">{s.label}</span>
+      </div>
+    ))}
+  </div>
+);
 
-
-
-/* This is job links on the homepage */
+/* ============================================================
+   JOB LINKS (Category / Industry / Region Cards)
+   ============================================================ */
 const JobLinks = () => {
   const navigate = useNavigate();
-
   const handleSearchRedirect = (params) => {
     const query = new URLSearchParams(params).toString();
     navigate(`/search-results?${query}`);
   };
 
+  const cards = [
+    {
+      icon: faBriefcase,
+      title: 'Job Categories',
+      items: [
+        { icon: faLaptopCode, label: 'Information Technology', param: { category: 'Information Technology' } },
+        { icon: faTractor,    label: 'Agriculture',            param: { category: 'Agriculture' } },
+        { icon: faChartLine,  label: 'Business & Finance',     param: { category: 'Business' } },
+      ],
+      viewAll: () => navigate('/jobs'),
+      viewLabel: 'View All Categories',
+    },
+    {
+      icon: faIndustry,
+      title: 'Job Industries',
+      items: [
+        { icon: faMicrochip,  label: 'Technology',  param: { industry: 'Technology' } },
+        { icon: faHeartbeat,  label: 'Healthcare',  param: { industry: 'Healthcare' } },
+        { icon: faChartLine,  label: 'Finance',     param: { industry: 'Finance' } },
+      ],
+      viewAll: () => navigate('/jobs'),
+      viewLabel: 'View All Industries',
+    },
+    {
+      icon: faMapMarkerAlt,
+      title: 'Job Regions',
+      items: [
+        { icon: faCity,     label: 'Lusaka',   param: { location: 'Lusaka' } },
+        { icon: faBuilding, label: 'Kitwe',    param: { location: 'Kitwe' } },
+        { icon: faCity,     label: 'Ndola',    param: { location: 'Ndola' } },
+      ],
+      viewAll: () => navigate('/jobs'),
+      viewLabel: 'View All Regions',
+    },
+  ];
+
   return (
-    <div className="job__links__container">
-      <div className="categories__header">
-        <h2>Find Your Dream Job</h2>
-        <p>Browse opportunities by category, industry, or location to find the perfect match for your skills and interests.</p>
-      </div>
-
-      <div className="categories__grid">
-        {/* Job Categories Card */}
-        <div className="category__card">
-          <div className="card__header">
-            <FontAwesomeIcon icon={faBriefcase} className="card__header-icon" />
-            <h3>Job Categories</h3>
-          </div>
-          <div className="card__content">
-            <div className="category__item" onClick={() => handleSearchRedirect({ category: 'Information Technology' })}>
-              <FontAwesomeIcon icon={faLaptopCode} className="category__item-icon" /> Information Technology
-            </div>
-            <div className="category__item" onClick={() => handleSearchRedirect({ category: 'Agriculture' })}>
-              <FontAwesomeIcon icon={faTractor} className="category__item-icon" /> Agriculture
-            </div>
-            <div className="category__item" onClick={() => handleSearchRedirect({ category: 'Business' })}>
-              <FontAwesomeIcon icon={faChartLine} className="category__item-icon" /> Business
-            </div>
-            {/* Add more with handleSearchRedirect */}
-          </div>
-          <div className="card__footer">
-            <button className="btn" onClick={() => navigate('/categories')}>
-              <span>View All Categories</span> <FontAwesomeIcon icon={faArrowRight} />
-            </button>
-          </div>
+    <section className="job-links">
+      <div className="container">
+        <div className="section-header">
+          <span className="section-header__eyebrow">Explore</span>
+          <h2 className="section-header__title">Find Your Perfect Opportunity</h2>
+          <p className="section-header__subtitle">
+            Browse by category, industry, or location to find the role that fits you.
+          </p>
         </div>
-
-        {/* Industries Card */}
-        <div className="category__card">
-          <div className="card__header">
-            <FontAwesomeIcon icon={faIndustry} className="card__header-icon" />
-            <h3>Job Industries</h3>
-          </div>
-          <div className="card__content">
-            <div className="category__item" onClick={() => handleSearchRedirect({ industry: 'Technology' })}>
-              <FontAwesomeIcon icon={faMicrochip} className="category__item-icon" /> Technology
+        <div className="job-links__grid">
+          {cards.map((card, i) => (
+            <div key={i} className="job-links__card card">
+              <div className="job-links__card-header">
+                <span className="job-links__card-icon">
+                  <FontAwesomeIcon icon={card.icon} />
+                </span>
+                <h3 className="job-links__card-title">{card.title}</h3>
+              </div>
+              <ul className="job-links__card-items">
+                {card.items.map((item, j) => (
+                  <li key={j}>
+                    <button
+                      className="job-links__item"
+                      onClick={() => handleSearchRedirect(item.param)}
+                    >
+                      <FontAwesomeIcon icon={item.icon} className="job-links__item-icon" />
+                      <span>{item.label}</span>
+                      <FontAwesomeIcon icon={faArrowRight} className="job-links__item-arrow" />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+              <div className="job-links__card-footer">
+                <button className="btn btn-outline btn-sm" onClick={card.viewAll}>
+                  {card.viewLabel}
+                </button>
+              </div>
             </div>
-            <div className="category__item" onClick={() => handleSearchRedirect({ industry: 'Healthcare' })}>
-              <FontAwesomeIcon icon={faHeartbeat} className="category__item-icon" /> Healthcare
-            </div>
-            {/* More industries here */}
-          </div>
-          <div className="card__footer">
-            <button className="btn" onClick={() => navigate('/industries')}>
-              <span>View All Industries</span> <FontAwesomeIcon icon={faArrowRight} />
-            </button>
-          </div>
-        </div>
-
-        {/* Regions Card */}
-        <div className="category__card">
-          <div className="card__header">
-            <FontAwesomeIcon icon={faMapMarkerAlt} className="card__header-icon" />
-            <h3>Job Regions</h3>
-          </div>
-          <div className="card__content">
-            <div className="category__item" onClick={() => handleSearchRedirect({ location: 'Lusaka' })}>
-              <FontAwesomeIcon icon={faCity} className="category__item-icon" /> Lusaka
-            </div>
-            <div className="category__item" onClick={() => handleSearchRedirect({ location: 'Kitwe' })}>
-              <FontAwesomeIcon icon={faBuilding} className="category__item-icon" /> Kitwe
-            </div>
-            {/* More regions here */}
-          </div>
-          <div className="card__footer">
-            <button className="btn" onClick={() => navigate('/regions')}>
-              <span>View All Regions</span> <FontAwesomeIcon icon={faArrowRight} />
-            </button>
-          </div>
+          ))}
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 
-
-
-/*join us homepage button*/  
-
-const JobBoardHeader = () => {
-  return (
-    <div className="job-board-header">
-      <div className="job-board-header__content">
-        <h2 className="job-board-header__title">Explore Opportunities & Talent</h2>
-
-        <div className="job-board-header__text">
-          <p className="job-board-header__subtitle">
-            Browse the latest job openings and professional portfolios from top talent.
-          </p>
-          <p className="job-board-header__description">
-            Want to post a job or showcase your portfolio? <strong>Register today</strong> and connect with the right opportunities or talent.
-          </p>
-        </div>
-
-        <div className="job-board-header__cta">
-          <Link to="/register" className="job-board-header__button">
-            <span className="job-board-header__button-text">Register Now</span>
-            <span className="job-board-header__button-icon">→</span>
-              
-          </Link>
-        </div>
+/* ============================================================
+   JOB BOARD SECTION
+   ============================================================ */
+const JobCardSkeleton = () => (
+  <div className="home-job-card home-job-card--skeleton">
+    <div className="home-job-card__header">
+      <div className="skeleton" style={{ width: 44, height: 44, borderRadius: '50%' }} />
+      <div style={{ flex: 1 }}>
+        <div className="skeleton" style={{ height: 16, width: '70%', marginBottom: 8 }} />
+        <div className="skeleton" style={{ height: 12, width: '45%' }} />
       </div>
     </div>
-  );
-};
-
-
-/**
- * JobBoard Component - Displays a scrollable grid of job postings with navigation controls
- * 
- * 
- * Features:
- * - Horizontal scrolling job cards with smooth snap behavior
- * - Navigation arrows to move between pages
- * - Progress bar showing current scroll position
- * - Responsive design for all screen sizes
- * - Hover effects and animations
- */
- // You must define the CSS layout here
-
-const JobCard = ({ job }) => (
-  <div className="job-card">
-    <div className="job-card-header">
-      <div className="job-title-container">
-        <h3 className="job-title">{job.advert_title}</h3>
-        <p className="company-name">{job.company_name}</p>
-      </div>
-      <span className={`job-type-badge ${job.job_type.toLowerCase().replace(' ', '-')}`}>
-        {job.job_type}
-      </span>
-    </div>
-
-    <div className="job-meta">
-      <span className={`meta-item ${job.is_remote ? 'remote' : 'location'}`}>
-        {job.is_remote ? '🌍 Remote' : `📍 ${job.location}`}
-      </span>
-      <span className="meta-item category">{job.category}</span>
-      <span className="meta-item experience">{job.experience_level}</span>
-    </div>
-
-    <p className="job-description">
-      {job.description.substring(0, 160)}...
-    </p>
-
-
-    <div className="job-footer">
-      <span className="post-date">
-        Posted {new Date(job.created_at).toLocaleDateString()}
-      </span>
-      <div className="apply-actions">
-        <Link to={`/jobs/${job.id}`} className="btn-apply">
-          View Details
-        </Link>
-      </div>
+    <div className="skeleton" style={{ height: 12, width: '90%', marginBottom: 6 }} />
+    <div className="skeleton" style={{ height: 12, width: '75%', marginBottom: 6 }} />
+    <div className="skeleton" style={{ height: 12, width: '60%', marginBottom: 16 }} />
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div className="skeleton" style={{ height: 24, width: 80, borderRadius: 20 }} />
+      <div className="skeleton" style={{ height: 32, width: 100, borderRadius: 20 }} />
     </div>
   </div>
 );
 
+const typeColorMap = {
+  'full-time': 'success',
+  'part-time': 'warning',
+  'contract': 'info',
+  'internship': 'neutral',
+  'remote': 'primary',
+};
 
-const JobBoard = () => {
+const timeAgo = (dateStr) => {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const days = Math.floor(diff / 86400000);
+  if (days === 0) return 'Today';
+  if (days === 1) return 'Yesterday';
+  if (days < 7) return `${days}d ago`;
+  if (days < 30) return `${Math.floor(days / 7)}w ago`;
+  return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+};
+
+const HomeJobCard = ({ job }) => {
+  const typeKey = job.job_type?.toLowerCase().replace(/\s+/g, '-') || '';
+  const badgeClass = `badge badge-${typeColorMap[typeKey] || 'neutral'}`;
+  const initial = job.company_name?.charAt(0)?.toUpperCase() || 'C';
+
+  const COLORS = ['#6366f1', '#8b5cf6', '#ec4899', '#0ea5e9', '#10b981', '#f59e0b'];
+  const avatarColor = COLORS[initial.charCodeAt(0) % COLORS.length];
+
+  return (
+    <div className="home-job-card">
+      <div className="home-job-card__header">
+        <div className="home-job-card__avatar" style={{ backgroundColor: avatarColor }}>
+          {initial}
+        </div>
+        <div className="home-job-card__title-area">
+          <h3 className="home-job-card__title">{job.advert_title}</h3>
+          <p className="home-job-card__company">{job.company_name}</p>
+        </div>
+      </div>
+
+      <div className="home-job-card__meta">
+        <span className="home-job-card__location">
+          {job.is_remote ? '🌍 Remote' : `📍 ${job.location}`}
+        </span>
+        {job.experience_level && (
+          <span className="chip">{job.experience_level}</span>
+        )}
+      </div>
+
+      <p className="home-job-card__desc">
+        {job.description?.substring(0, 100)}…
+      </p>
+
+      <div className="home-job-card__footer">
+        <span className={badgeClass}>{job.job_type}</span>
+        <span className="home-job-card__date">{timeAgo(job.created_at)}</span>
+        <Link to={`/jobs/${job.id}`} className="btn btn-primary btn-sm">
+          View
+        </Link>
+      </div>
+    </div>
+  );
+};
+
+const JobBoardSection = () => {
   const [jobs, setJobs] = useState([]);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -329,14 +376,13 @@ const JobBoard = () => {
     const fetchJobs = async () => {
       try {
         setLoading(true);
-        const response = await api.get("/job_postings");
-        // Defensive alignment with standardized backend format
+        const response = await api.get('/job_postings');
         const data = response.data || [];
         setJobs(Array.isArray(data) ? data.slice(0, 12) : []);
         setError(null);
       } catch (err) {
-        console.error("Failed to fetch jobs", err);
-        setError("Failed to load job postings.");
+        console.error('Failed to fetch jobs', err);
+        setError('Failed to load job postings.');
         setJobs([]);
       } finally {
         setLoading(false);
@@ -345,617 +391,346 @@ const JobBoard = () => {
     fetchJobs();
   }, []);
 
-  // Mandatory Standardized Loading/Error UI
-  if (loading) return <div className="loading-state"><p>Loading jobs...</p></div>;
-  if (error) return <div className="error-state"><p>{error}</p></div>;
-
   const totalSlides = Math.ceil(jobs.length / jobsPerPage);
+  const displayedJobs = jobs.slice(currentSlide * jobsPerPage, (currentSlide + 1) * jobsPerPage);
 
-  const handleScroll = (direction) => {
-    if (direction === 'left' && currentSlide > 0) {
-      setCurrentSlide(currentSlide - 1);
-    } else if (direction === 'right' && currentSlide < totalSlides - 1) {
-      setCurrentSlide(currentSlide + 1);
-    }
-  };
-
-  const startIndex = currentSlide * jobsPerPage;
-  const displayedJobs = jobs.slice(startIndex, startIndex + jobsPerPage);
-
-  const progressPercentage = ((currentSlide + 1) / totalSlides) * 100;
+  const handlePrev = () => setCurrentSlide(p => Math.max(0, p - 1));
+  const handleNext = () => setCurrentSlide(p => Math.min(totalSlides - 1, p + 1));
 
   return (
-    <section className="job-board">
-      <div className="job-board__container">
-        <div className="job-board__header">
-          <h2 className="job-board__title">Recent Job Posts</h2>
-        </div>
-
-        <div className="scroll-wrapper">
-          <button className="scroll-btn left" onClick={() => handleScroll("left")} disabled={currentSlide === 0}>
-            <FaChevronLeft />
-          </button>
-
-          <div className="job-board__grid-wrapper">
-            {Array.isArray(displayedJobs) && displayedJobs.map((job) => (
-              <JobCard key={job.id} job={job} />
-            ))}
+    <section className="job-board-section">
+      <div className="container">
+        <div className="job-board-section__head">
+          <div>
+            <span className="section-header__eyebrow">Latest</span>
+            <h2 className="job-board-section__title">Recent Job Posts</h2>
           </div>
-
-          <button className="scroll-btn right" onClick={() => handleScroll("right")} disabled={currentSlide === totalSlides - 1}>
-            <FaChevronRight />
-          </button>
+          <div className="job-board-section__nav">
+            <button
+              className="job-board-section__nav-btn"
+              onClick={handlePrev}
+              disabled={currentSlide === 0}
+              aria-label="Previous page"
+            >
+              <FaChevronLeft />
+            </button>
+            <span className="job-board-section__slide-info">
+              {currentSlide + 1} / {Math.max(1, totalSlides)}
+            </span>
+            <button
+              className="job-board-section__nav-btn"
+              onClick={handleNext}
+              disabled={currentSlide >= totalSlides - 1}
+              aria-label="Next page"
+            >
+              <FaChevronRight />
+            </button>
+          </div>
         </div>
+
+        {error ? (
+          <div className="error-state">
+            <div className="error-state__icon">⚠️</div>
+            <p className="error-state__title">{error}</p>
+          </div>
+        ) : (
+          <div className="job-board-section__grid">
+            {loading
+              ? [...Array(4)].map((_, i) => <JobCardSkeleton key={i} />)
+              : displayedJobs.map(job => <HomeJobCard key={job.id} job={job} />)
+            }
+          </div>
+        )}
 
         {/* Progress Bar */}
-        <div className="progress-bar-container">
-          <div className="progress-bar" style={{ width: `${progressPercentage}%` }}></div>
-        </div>
+        {!loading && jobs.length > 0 && (
+          <div className="job-board-section__progress-track">
+            <div
+              className="job-board-section__progress-fill"
+              style={{ width: `${((currentSlide + 1) / totalSlides) * 100}%` }}
+            />
+          </div>
+        )}
 
-        <div className="jobs__btn__container">
-          <a href="/jobs" className="jobs__btn">
-            <span>All Jobs</span>
-          </a>
+        <div className="job-board-section__cta">
+          <Link to="/jobs" className="btn btn-outline">
+            Browse All Jobs <FaChevronRight style={{ fontSize: 12 }} />
+          </Link>
         </div>
       </div>
     </section>
   );
 };
 
+/* ============================================================
+   CAREER ADVICE SLIDER
+   ============================================================ */
+const careerTips = [
+  { id: 1, icon: '📁', title: 'Perfect Your Portfolio', content: 'Showcase your best work with clear descriptions of your role and the impact you made. Quality over quantity matters most.', cta: 'View portfolio examples', link: '/portfolios' },
+  { id: 2, icon: '✍️', title: 'Tailor Your Applications', content: 'Customize your resume and cover letter for each position. Highlight relevant skills that match the job description.', cta: 'Browse jobs', link: '/jobs' },
+  { id: 3, icon: '🤝', title: 'Network Effectively', content: 'Connect with professionals in your field. A recommendation can often get your application noticed faster.', cta: 'View talent', link: '/portfolios' },
+  { id: 4, icon: '💬', title: 'Prepare for Interviews', content: "Research common questions and practice your responses. Remember to prepare questions for your interviewer too.", cta: 'Read more tips', link: '/news' },
+];
 
-//this is the portfolio component on the homepage
 const CareerAdviceSlider = () => {
-  const [currentSlide, setCurrentSlide] = useState(0);
-  
-  const careerTips = [
-    {
-      id: 1,
-      title: "Perfect Your Portfolio",
-      content: "Showcase your best work with clear descriptions of your role and the impact you made. Quality over quantity matters most.",
-      cta: "View portfolio examples",
-      icon: "📁"
-    },
-    {
-      id: 2,
-      title: "Tailor Your Applications",
-      content: "Customize your resume and cover letter for each position. Highlight relevant skills that match the job description.",
-      cta: "Get application tips",
-      icon: "✍️"
-    },
-    {
-      id: 3,
-      title: "Network Effectively",
-      content: "Connect with professionals in your field. A recommendation can often get your application noticed faster.",
-      cta: "Find networking events",
-      icon: "🤝"
-    },
-    {
-      id: 4,
-      title: "Prepare for Interviews",
-      content: "Research common questions and practice your responses. Remember to prepare questions for your interviewer too.",
-      cta: "See interview questions",
-      icon: "💬"
-    }
-  ];
+  const [current, setCurrent] = useState(0);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentSlide(prev => (prev + 1) % careerTips.length);
-    }, 8000);
-    return () => clearInterval(interval);
-  }, [careerTips.length]);
+    const t = setInterval(() => setCurrent(p => (p + 1) % careerTips.length), 8000);
+    return () => clearInterval(t);
+  }, []);
 
-  const nextSlide = () => {
-    setCurrentSlide(prev => (prev + 1) % careerTips.length);
-  };
-
-  const prevSlide = () => {
-    setCurrentSlide(prev => (prev - 1 + careerTips.length) % careerTips.length);
-  };
+  const tip = careerTips[current];
 
   return (
-    <div className="career-advice-slider">
-      <div className="slider-container">
-        <button 
-          className="slider-nav-btn prev" 
-          onClick={prevSlide}
-          aria-label="Previous tip"
-        >
-          <FaChevronLeft />
-        </button>
-        
-        <div className="slider-content">
-          <div className="slider-icon">{careerTips[currentSlide].icon}</div>
-          <h3>{careerTips[currentSlide].title}</h3>
-          <div className="slider-quote">
-            <FaQuoteLeft className="quote-icon" />
-            <p>{careerTips[currentSlide].content}</p>
+    <section className="career-slider">
+      <div className="container">
+        <div className="career-slider__card">
+          <div className="career-slider__left">
+            <span className="section-header__eyebrow">Career Tips</span>
+            <div className="career-slider__tip">
+              <span className="career-slider__tip-icon">{tip.icon}</span>
+              <h3 className="career-slider__tip-title">{tip.title}</h3>
+              <p className="career-slider__tip-body">
+                <FaQuoteLeft className="career-slider__quote-icon" aria-hidden="true" />
+                {tip.content}
+              </p>
+              <Link to={tip.link} className="btn btn-primary btn-sm">
+                {tip.cta}
+              </Link>
+            </div>
           </div>
-          <a href="#" className="slider-cta">
-            {careerTips[currentSlide].cta} <FaChevronRight className="cta-arrow" />
-          </a>
+          <div className="career-slider__right">
+            <div className="career-slider__progress-list">
+              {careerTips.map((t, i) => (
+                <button
+                  key={t.id}
+                  className={`career-slider__progress-item ${i === current ? 'career-slider__progress-item--active' : ''}`}
+                  onClick={() => setCurrent(i)}
+                >
+                  <span className="career-slider__progress-num">{String(i + 1).padStart(2, '0')}</span>
+                  <span className="career-slider__progress-label">{t.title}</span>
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
-        
-        <button 
-          className="slider-nav-btn next" 
-          onClick={nextSlide}
-          aria-label="Next tip"
-        >
-          <FaChevronRight />
-        </button>
       </div>
-      
-      <div className="slider-dots">
-        {careerTips.map((_, index) => (
-          <button
-            key={index}
-            className={`dot ${index === currentSlide ? 'active' : ''}`}
-            onClick={() => setCurrentSlide(index)}
-            aria-label={`Go to tip ${index + 1}`}
-          />
-        ))}
-      </div>
-    </div>
+    </section>
   );
 };
 
-//this is the portfolio component on the homepage to show the recent portfolio updates
-
+/* ============================================================
+   HOMEPAGE PORTFOLIOS
+   ============================================================ */
+const PortfolioCardSkeleton = () => (
+  <div className="hp-portfolio-card hp-portfolio-card--skeleton">
+    <div className="skeleton" style={{ width: 72, height: 72, borderRadius: '50%', margin: '0 auto 12px' }} />
+    <div className="skeleton" style={{ height: 16, width: '70%', margin: '0 auto 8px' }} />
+    <div className="skeleton" style={{ height: 12, width: '50%', margin: '0 auto 8px' }} />
+    <div className="skeleton" style={{ height: 12, width: '40%', margin: '0 auto 16px' }} />
+    <div className="skeleton" style={{ height: 32, borderRadius: 20 }} />
+  </div>
+);
 
 const HomepagePortfolios = () => {
   const [portfolios, setPortfolios] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const scrollRef = useRef(null);
   const [progress, setProgress] = useState(0);
-  const [showLeftButton, setShowLeftButton] = useState(false);
-  const [showRightButton, setShowRightButton] = useState(true);
-
-  const scrollContainerRef = useRef(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
 
   useEffect(() => {
     const fetchPortfolios = async () => {
       try {
         setLoading(true);
         const res = await api.get('/portfolios?limit=12');
-        // Defensive alignment with standardized backend format
         const data = res.data || [];
         setPortfolios(Array.isArray(data) ? data : []);
         setError(null);
       } catch (err) {
         console.error(err);
-        setError('Failed to fetch portfolios. Please try again later.');
+        setError('Failed to fetch portfolios.');
         setPortfolios([]);
       } finally {
         setLoading(false);
       }
     };
-
     fetchPortfolios();
   }, []);
 
-  const handleScroll = () => {
-    const container = scrollContainerRef.current;
-    if (container) {
-      const { scrollLeft, scrollWidth, clientWidth } = container;
-      const scrollWidthTotal = scrollWidth - clientWidth;
-      const progressValue = (scrollLeft / scrollWidthTotal) * 100;
-      setProgress(progressValue);
-      
-      // Update button visibility
-      setShowLeftButton(scrollLeft > 0);
-      setShowRightButton(scrollLeft < scrollWidthTotal - 10); // 10px buffer
-    }
+  const onScroll = () => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const { scrollLeft, scrollWidth, clientWidth } = el;
+    const total = scrollWidth - clientWidth;
+    setProgress(total ? (scrollLeft / total) * 100 : 0);
+    setCanScrollLeft(scrollLeft > 0);
+    setCanScrollRight(scrollLeft < total - 10);
   };
 
-  const scrollBy = (distance) => {
-    if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollBy({
-        left: distance,
-        behavior: 'smooth'
-      });
-    }
-  };
+  const scrollBy = (dist) => scrollRef.current?.scrollBy({ left: dist, behavior: 'smooth' });
 
-  // Mandatory Standardized Loading/Error UI
-  if (loading) return <div className="loading-state"><p>Loading portfolios...</p></div>;
-  if (error) return <div className="error-state"><p>{error}</p></div>;
+  const COLORS = ['#6366f1', '#8b5cf6', '#ec4899', '#0ea5e9', '#10b981', '#f59e0b'];
+  const getColor = (name) => COLORS[(name?.charCodeAt(0) || 0) % COLORS.length];
 
   return (
-    <div className="homepage-portfolios">
-      <h2 className="portfolios-title">Recent Portfolios</h2>
-
-      {/* Scroll Wrapper with Navigation Buttons */}
-      <div className="portfolios-scroll-wrapper">
-        {showLeftButton && (
-          <button 
-            className="portfolios-scroll-btn left"
-            onClick={() => scrollBy(-300)}
-            aria-label="Scroll left"
-          >
-            <FaChevronLeft />
-          </button>
-        )}
-
-        {/* Horizontal Scrollable List */}
-        <div
-          className="portfolios-scroll-container"
-          ref={scrollContainerRef}
-          onScroll={handleScroll}
-        >
-          {Array.isArray(portfolios) && portfolios.map((portfolio) => (
-            <div key={portfolio.id} className="portfolio-card">
-              <img
-                src={portfolio.profile_image_url || '/default-profile.png'}
-                alt={`${portfolio.full_name}'s profile`}
-                className="portfolio-image"
-                onError={(e) => {
-                  e.target.src = '/default-profile.png';
-                }}
-              />
-              <div className="portfolio-info">
-                <h3>{portfolio.full_name}</h3>
-                <p className="profession">{portfolio.profession_title}</p>
-                <p className="location">{portfolio.location}</p>
-                <Link
-                  to={`/portfolios/${portfolio.id}`}
-                  className="view-details-btn"
-                >
-                  View Details
-                </Link>
-              </div>
-            </div>
-          ))}
+    <section className="hp-portfolios">
+      <div className="container">
+        <div className="section-header">
+          <span className="section-header__eyebrow">Talent Showcase</span>
+          <h2 className="section-header__title">Discover Top Professionals</h2>
+          <p className="section-header__subtitle">Browse portfolios from Zambia's best talent.</p>
         </div>
 
-        {showRightButton && (
-          <button 
-            className="portfolios-scroll-btn right"
-            onClick={() => scrollBy(300)}
-            aria-label="Scroll right"
-          >
-            <FaChevronRight />
-          </button>
+        <div className="hp-portfolios__scroll-wrapper">
+          {canScrollLeft && (
+            <button className="hp-portfolios__scroll-btn hp-portfolios__scroll-btn--left" onClick={() => scrollBy(-320)} aria-label="Scroll left">
+              <FaChevronLeft />
+            </button>
+          )}
+          <div className="hp-portfolios__scroll" ref={scrollRef} onScroll={onScroll}>
+            {loading
+              ? [...Array(5)].map((_, i) => <PortfolioCardSkeleton key={i} />)
+              : error
+                ? <p className="hp-portfolios__error">{error}</p>
+                : portfolios.map(p => (
+                    <div key={p.id} className="hp-portfolio-card">
+                      {p.profile_image_url ? (
+                        <img
+                          src={p.profile_image_url}
+                          alt={p.full_name}
+                          className="hp-portfolio-card__img"
+                          onError={e => { e.target.style.display = 'none'; }}
+                        />
+                      ) : (
+                        <div className="hp-portfolio-card__avatar" style={{ backgroundColor: getColor(p.full_name) }}>
+                          {p.full_name?.charAt(0)?.toUpperCase() || 'P'}
+                        </div>
+                      )}
+                      <h3 className="hp-portfolio-card__name">{p.full_name}</h3>
+                      <p className="hp-portfolio-card__profession">{p.profession_title}</p>
+                      <p className="hp-portfolio-card__location">📍 {p.location}</p>
+                      {p.availability && (
+                        <span className="badge badge-success hp-portfolio-card__badge">{p.availability}</span>
+                      )}
+                      <Link to={`/portfolios/${p.id}`} className="btn btn-outline btn-sm hp-portfolio-card__btn">
+                        View Profile
+                      </Link>
+                    </div>
+                  ))
+            }
+          </div>
+          {canScrollRight && (
+            <button className="hp-portfolios__scroll-btn hp-portfolios__scroll-btn--right" onClick={() => scrollBy(320)} aria-label="Scroll right">
+              <FaChevronRight />
+            </button>
+          )}
+        </div>
+
+        {!loading && portfolios.length > 0 && (
+          <div className="hp-portfolios__progress-track">
+            <div className="hp-portfolios__progress-fill" style={{ width: `${progress}%` }} />
+          </div>
         )}
+
+        <div style={{ textAlign: 'center', marginTop: 'var(--space-8)' }}>
+          <Link to="/portfolios" className="btn btn-outline">
+            View All Portfolios <FaChevronRight style={{ fontSize: 12 }} />
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+/* ============================================================
+   JOB POSTING GUIDE
+   ============================================================ */
+const steps = [
+  { n: '01', title: 'Create Your Employer Profile', desc: 'Set up your company profile to showcase your brand and attract the right candidates.' },
+  { n: '02', title: 'Post Your Job Listing', desc: 'Use our simple form to create detailed job postings with requirements, benefits, and salary.' },
+  { n: '03', title: 'Reach Quality Candidates', desc: 'Your listing reaches Zambia\'s largest pool of active job seekers instantly.' },
+  { n: '04', title: 'Manage Applications', desc: 'Review candidate profiles and connect with your best matches directly through the platform.' },
+];
+
+const JobPostingGuide = () => (
+  <section className="job-guide">
+    <div className="container">
+      <div className="section-header">
+        <span className="section-header__eyebrow">For Employers</span>
+        <h2 className="section-header__title">Hire Top Talent in 4 Steps</h2>
+        <p className="section-header__subtitle">Post a job and start receiving applications from qualified candidates today.</p>
       </div>
 
-      {/* Progress Bar */}
-      <div className="scroll-progress-bar">
-        <div
-          className="scroll-progress"
-          style={{ width: `${progress}%` }}
-        ></div>
+      <div className="job-guide__steps">
+        {steps.map(s => (
+          <div key={s.n} className="job-guide__step">
+            <div className="job-guide__step-num">{s.n}</div>
+            <h3 className="job-guide__step-title">{s.title}</h3>
+            <p className="job-guide__step-desc">{s.desc}</p>
+          </div>
+        ))}
       </div>
 
-      {/* View All Button */}
-      <div className="view-all-container">
-        <Link to="/portfolios" className="view-all-btn">
-          View All Portfolios
+      <div style={{ textAlign: 'center', marginTop: 'var(--space-12)' }}>
+        <Link to="/postjob" className="btn btn-primary btn-lg">
+          Post a Job Now
         </Link>
+        <p style={{ marginTop: 'var(--space-3)', color: 'var(--neutral-500)', fontSize: 'var(--text-sm)' }}>
+          Get your first 3 job postings free
+        </p>
       </div>
     </div>
-  );
-};
+  </section>
+);
 
+/* ============================================================
+   VISION STATEMENT
+   ============================================================ */
+const visionCards = [
+  { title: 'For Job Seekers', icon: '🎯', desc: "Find meaningful work with companies that value your skills. No more endless searches — connect directly with opportunities that match your expertise." },
+  { title: 'For Employers', icon: '🏢', desc: "Build your dream team by connecting with Zambia's most qualified professionals. See candidates who truly fit your requirements." },
+  { title: 'Our Community', icon: '🌍', desc: "We're building a platform that empowers Zambia's workforce — transparent, efficient, and inclusive for everyone." },
+];
 
+const coreValues = ['Transparency', 'Efficiency', 'Diversity', 'Innovation', 'Community'];
 
-
-/**
- * NewsHeader Component - A modern header section for news/articles
- * 
- * Features:
- * - Clean, modern design with subtle pattern background
- * - "Subscribe" button with hover effects
- * - Responsive layout for all screen sizes
- * - Distinct visual style while maintaining brand colors
- */
-const NewsHeader = () => {
-  return (
-    <div className="news-header">
-      <div className="news-header__pattern"></div>
-      <div className="news-header__content">
-        <div className="news-header__titles">
-          <h1 className="news-header__main-title">Latest News & Updates</h1>
-          <h2 className="news-header__subtitle">Stay informed with our curated content</h2>
-        </div>
-        
-        <div className="news-header__text">
-          <p className="news-header__description">
-            Get the latest industry insights, company updates, and expert opinions delivered straight to you.
-          </p>
-        </div>
-        
-        <div className="news-header__cta">
-          <a href="/subscribe" className="news-header__button">
-            <span className="news-header__button-text">Subscribe Now</span>
-            <svg className="news-header__button-icon" viewBox="0 0 24 24" width="20" height="20">
-              <path fill="currentColor" d="M4,11V13H16L10.5,18.5L11.92,19.92L19.84,12L11.92,4.08L10.5,5.5L16,11H4Z" />
-            </svg>
-          </a>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-
-/**new feed home components  */
-
-const NewsFeed = () => {
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const [cardsPerView, setCardsPerView] = useState(3);
-  const newsCardsContainerRef = useRef(null);
-  
-  const newsData = [
-    {
-      id: 1,
-      title: "Tech Industry Sees Record Growth in Q2",
-      description: "The technology sector has reported unprecedented growth figures this quarter, with several major companies exceeding expectations. Analysts predict this trend will continue through the end of the year.",
-      date: "Posted: June 15, 2023",
-      image: "images/image4.png",
-      alt: "Tech Industry Growth"
-    },
-    {
-      id: 2,
-      title: "Remote Work Trends in 2023",
-      description: "New study reveals how hybrid work models are becoming the standard for knowledge workers worldwide. Companies are adapting their policies to attract top talent.",
-      date: "Posted: June 10, 2023",
-      image: './images/networking.jpeg',
-      alt: "Remote Work Trends"
-    },
-    {
-      id: 3,
-      title: "Leadership Conference Announced",
-      description: "Annual leadership summit to feature keynote speakers from Fortune 500 companies and innovative startups. Early bird registration now open.",
-      date: "Posted: June 5, 2023",
-      image: "./images/contact1.png'",
-      alt: "Leadership Conference"
-    },
-    {
-      id: 4,
-      title: "Emerging Careers in AI",
-      description: "As artificial intelligence continues to evolve, these are the most in-demand roles companies are hiring for. See if your skills match these growing opportunities.",
-      date: "Posted: May 28, 2023",
-      image: "./images/contact1.png'",
-      alt: "AI Careers"
-    },
-    {
-      id: 5,
-      title: "Productivity Tools Comparison",
-      description: "We tested the top 10 productivity apps to help you decide which one fits your workflow best. Find out which tools can save you the most time.",
-      date: "Posted: May 20, 2023",
-      image: "./images/contact1.png'",
-      alt: "Productivity Tools"
-    }
-  ];
-
-  const totalSlides = Math.ceil(newsData.length / cardsPerView);
-
-  useEffect(() => {
-    const handleResize = () => {
-      const newCardsPerView = window.innerWidth <= 768 ? 1 : 3;
-      setCardsPerView(newCardsPerView);
-      const newTotalSlides = Math.ceil(newsData.length / newCardsPerView);
-      setCurrentSlide(Math.min(currentSlide, newTotalSlides - 1));
-    };
-
-    window.addEventListener('resize', handleResize);
-    handleResize(); // Initial check
-
-    return () => window.removeEventListener('resize', handleResize);
-  }, [currentSlide, newsData.length]);
-
-  const goToSlide = (slideIndex) => {
-    if (slideIndex < 0 || slideIndex >= totalSlides) return;
-    
-    const cardWidth = newsCardsContainerRef.current?.firstChild?.offsetWidth || 0;
-    const scrollPosition = slideIndex * cardsPerView * (cardWidth + 20); // Include gap
-    
-    newsCardsContainerRef.current?.scrollTo({
-      left: scrollPosition,
-      behavior: 'smooth'
-    });
-    
-    setCurrentSlide(slideIndex);
-  };
-
-  const handleScroll = () => {
-    if (!newsCardsContainerRef.current) return;
-    
-    const scrollPosition = newsCardsContainerRef.current.scrollLeft;
-    const cardWidth = newsCardsContainerRef.current?.firstChild?.offsetWidth || 0;
-    const newSlide = Math.round(scrollPosition / ((cardWidth + 20) * cardsPerView));
-    
-    if (newSlide !== currentSlide) {
-      setCurrentSlide(newSlide);
-    }
-  };
-
-  const handleCardClick = (articleId, e) => {
-    if (!e.target.classList.contains('news-card__read-more')) {
-
-      // window.location.href = `/articles/${articleId}`;
-    }
-  };
-
-  const handleReadMore = (articleId, e) => {
-    e.stopPropagation();
-
-    // window.location.href = `/articles/${articleId}`;
-  };
-
-  return (
-    <div className="news-feed__container">
-      {/* News Feed Header */}
-      <div className="news-feed__header">
-        <h3 className="news-feed__title">Latest News & Updates</h3>
-        <a href="#" className="news-feed__view-all">View All</a>
+const VisionStatement = () => (
+  <section className="vision">
+    <div className="container">
+      <div className="section-header" style={{ color: 'white' }}>
+        <span className="section-header__eyebrow" style={{ color: 'rgba(255,255,255,0.7)' }}>Our Mission</span>
+        <h2 className="section-header__title" style={{ color: 'white' }}>
+          Bridging Talent &amp; Opportunity
+        </h2>
+        <p className="section-header__subtitle" style={{ color: 'rgba(255,255,255,0.7)' }}>
+          Connecting exceptional talent with innovative companies across Zambia.
+        </p>
       </div>
 
-      {/* News Cards Container with Arrows */}
-      <div className="news-feed__wrapper">
-        <button 
-          className="nav-arrow left-arrow" 
-          onClick={() => goToSlide(currentSlide - 1)}
-          disabled={currentSlide === 0}
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="15 18 9 12 15 6"></polyline>
-          </svg>
-        </button>
-        
-        <div 
-          className="news-feed__cards" 
-          ref={newsCardsContainerRef}
-          onScroll={handleScroll}
-        >
-          {newsData.map((newsItem) => (
-            <div 
-              key={newsItem.id} 
-              className="news-card" 
-              data-article-id={newsItem.id}
-              onClick={(e) => handleCardClick(newsItem.id, e)}
-            >
-              <div className="news-card__image-container">
-                <img src={newsItem.image} alt={newsItem.alt} className="news-card__image" />
-              </div>
-              <div className="news-card__content">
-                <h4 className="news-card__title">{newsItem.title}</h4>
-                <p className="news-card__description">{newsItem.description}</p>
-                <div className="news-card__footer">
-                  <span className="news-card__date">{newsItem.date}</span>
-                  <button 
-                    className="news-card__read-more"
-                    onClick={(e) => handleReadMore(newsItem.id, e)}
-                  >
-                    Read More
-                  </button>
-                </div>
-              </div>
-            </div>
+      <div className="vision__cards">
+        {visionCards.map((c, i) => (
+          <div key={i} className="vision__card">
+            <div className="vision__card-icon">{c.icon}</div>
+            <h3 className="vision__card-title">{c.title}</h3>
+            <p className="vision__card-desc">{c.desc}</p>
+          </div>
+        ))}
+      </div>
+
+      <div className="vision__values">
+        <p className="vision__values-label">Core Values</p>
+        <div className="vision__values-list">
+          {coreValues.map(v => (
+            <span key={v} className="vision__value-chip">{v}</span>
           ))}
         </div>
-        
-        <button 
-          className="nav-arrow right-arrow" 
-          onClick={() => goToSlide(currentSlide + 1)}
-          disabled={currentSlide >= totalSlides - 1}
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="9 18 15 12 9 6"></polyline>
-          </svg>
-        </button>
-      </div>
-
-      {/* Horizontal Progress Indicator */}
-      <div className="news-feed__progress">
-        <div 
-          className="progress-bar" 
-          style={{ width: `${((currentSlide + 1) / totalSlides) * 100}%` }}
-        ></div>
       </div>
     </div>
-  );
-};
-
-
-//this is the jobposting guide on the homepage
-
-const JobPostingGuide = () => {
-  return (
-    <div className="guide-container">
-      <h2 className="guide-title">Hiring Top Tech Talent?</h2>
-      <div className="guide-steps">
-        <div className="guide-step">
-          <div className="step-number">1</div>
-          <div className="step-content">
-            <h3>Create Your Employer Profile</h3>
-            <p>Set up your company profile to showcase your brand and attract the right candidates.</p>
-          </div>
-        </div>
-        
-        <div className="guide-step">
-          <div className="step-number">2</div>
-          <div className="step-content">
-            <h3>Post Your Job Listing</h3>
-            <p>Use our simple form to create detailed job postings with requirements, benefits, and salary range.</p>
-          </div>
-        </div>
-        
-        <div className="guide-step">
-          <div className="step-number">3</div>
-          <div className="step-content">
-            <h3>AI-Powered Candidate Matching</h3>
-            <p>Our system automatically matches you with qualified developers based on your requirements.</p>
-          </div>
-        </div>
-        
-        <div className="guide-step">
-          <div className="step-number">4</div>
-          <div className="step-content">
-            <h3>Manage Applications</h3>
-            <p>Review candidate profiles, schedule interviews, and send offers through our platform.</p>
-          </div>
-        </div>
-      </div>
-      
-      <div className="guide-cta">
-        <div><button className="cta-button"><Link 
-            to={"/PostJob"}
-          >Post a Job Now
-          </Link></button></div>
-        <p className="cta-note">Get your first 3 job postings free</p>
-      </div>
-    </div>
-  );
-};
-
-
-const VisionStatement = () => {
-  return (
-    <div className="vision-container">
-      <div className="vision-header">
-        <h2 className="vision-title">Our Vision</h2>
-        <p className="vision-tagline">Bridging the gap between exceptional talent and innovative companies</p>
-      </div>
-      
-      <div className="vision-content">
-        <div className="vision-card">
-          <h3>For Developers</h3>
-          <p>
-            We're creating a platform where tech talent can find meaningful work with companies that value their skills. 
-            No more endless job searches - our AI matches you with opportunities that align with your expertise and career goals.
-          </p>
-        </div>
-        
-        <div className="vision-card">
-          <h3>For Employers</h3>
-          <p>
-            We help growing companies build their dream engineering teams by connecting them with pre-vetted, 
-            highly skilled developers. Our matching algorithm ensures you only see candidates who truly fit your needs.
-          </p>
-        </div>
-        
-        <div className="vision-card">
-          <h3>Our Technology</h3>
-          <p>
-            Using advanced AI and machine learning, we're revolutionizing tech recruitment by eliminating bias, 
-            reducing hiring time, and ensuring better matches between candidates and companies.
-          </p>
-        </div>
-      </div>
-      
-      <div className="vision-values">
-        <h3>Core Values</h3>
-        <div className="values-list">
-          <span>Transparency</span>
-          <span>Efficiency</span>
-          <span>Diversity</span>
-          <span>Innovation</span>
-          <span>Community</span>
-        </div>
-      </div>
-    </div>
-  );
-};
+  </section>
+);
 
 export default Home;
