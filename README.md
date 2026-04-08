@@ -16,3 +16,4 @@ If you are developing a production application, we recommend using TypeScript an
 This repository contains the frontend implementation of Chapamo, a job and portfolio platform designed to connect professionals with opportunities while showcasing their skills and projects.
 >>>>>>> 6b93848d6e90dd54948eaa0d01649acc1b8f19a3
 # Chapamo2.0
+# Chapamo2.0
