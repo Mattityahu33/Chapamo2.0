@@ -190,7 +190,7 @@ const Navbar = () => {
               <span className="navbar__chevron">▾</span>
             </button>
 
-            <ul className="navbar__dropdown-menu" role="menu">
+            <ul className="navbar__dropdown-menu navbar__dropdown-menu--nav" role="menu">
               <li role="none">
                 <Link to="/portfolios" onClick={closeAllMenus} role="menuitem">
                   Browse Portfolios
@@ -278,7 +278,7 @@ const Navbar = () => {
                   </div>
                   <div>
                     <strong>{currentUser.username || "User"}</strong>
-                    <span>{currentUser.email || "Signed in"}</span>
+                    
                   </div>
                 </li>
 

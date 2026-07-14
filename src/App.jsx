@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import './App.css';
 import './index.css';
 
@@ -30,13 +30,24 @@ import Login from './pages/auth/login/Login';
 import Register from './pages/auth/register/Register';
 import Apply from './pages/jobs/Apply';
 
-const Layout = ({ children }) => (
-  <div className="page-wrapper">
-    <Navbar />
-    <main className="content">{children}</main>
-    <Footer />
-  </div>
-);
+const Layout = ({ children }) => {
+  const location = useLocation();
+
+  // Routes where Navbar and Footer should be hidden
+  const hideLayout = ['/login', '/register'].includes(location.pathname);
+
+  return (
+    <div className="page-wrapper">
+      {!hideLayout && <Navbar />}
+
+      <main className="content">
+        {children}
+      </main>
+
+      {!hideLayout && <Footer />}
+    </div>
+  );
+};
 
 const App = () => (
   <Layout>

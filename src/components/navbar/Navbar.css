@@ -169,7 +169,7 @@
   transform: rotate(180deg);
 }
 
-/* Dropdown */
+/* Dropdown (desktop) */
 .navbar__dropdown-menu {
   position: absolute;
   top: calc(100% + 14px);
@@ -197,6 +197,37 @@
   visibility: visible;
   pointer-events: auto;
   transform: translateX(-50%) translateY(0);
+}
+
+/*
+ * User account dropdown: the trigger sits near the right edge so
+ * centering with translateX(-50%) pushes the menu off-screen.
+ * Right-align it instead so it never overflows the viewport.
+ */
+.navbar__dropdown-menu--user {
+  min-width: 260px;
+  left: auto;
+  right: 0;
+  transform: translateY(-8px); /* no X shift needed */
+}
+
+.navbar__dropdown--open .navbar__dropdown-menu--user {
+  transform: translateY(0);
+}
+
+/*
+ * Navigation dropdowns (e.g. Portfolios): left-align so the panel
+ * opens to the right of the trigger. The trigger sits in the left
+ * half of the nav, so this never clips the right viewport edge.
+ */
+.navbar__dropdown-menu--nav {
+  left: 0;
+  right: auto;
+  transform: translateY(-8px);
+}
+
+.navbar__dropdown--open .navbar__dropdown-menu--nav {
+  transform: translateY(0);
 }
 
 .navbar__dropdown-menu li a,
@@ -230,9 +261,6 @@
   pointer-events: none;
 }
 
-.navbar__dropdown-menu--user {
-  min-width: 260px;
-}
 
 .navbar__user-summary {
   display: flex;
@@ -423,7 +451,11 @@
   }
 }
 
-/* Mobile */
+/* =============================================================
+   MOBILE  (≤960px)
+   All changes below are scoped to mobile only.
+   Desktop styles above (lines 1-425) are completely unchanged.
+   ============================================================= */
 @media (max-width: 960px) {
   .navbar__toggle {
     display: block;
@@ -437,6 +469,7 @@
     padding-right: calc(var(--content-pad) + 60px);
   }
 
+  /* ── Slide-in menu panel ──────────────────────────────── */
   .navbar__menu {
     position: fixed;
     top: calc(var(--nav-height) - 6px);
@@ -444,6 +477,7 @@
     width: min(370px, calc(100vw - 24px));
     max-height: calc(100dvh - var(--nav-height) - 14px);
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
     padding: 14px;
     gap: 8px;
     flex-direction: column;
@@ -460,7 +494,7 @@
     z-index: 998;
     backdrop-filter: blur(18px);
     -webkit-backdrop-filter: blur(18px);
-    transition: all 0.3s ease;
+    transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s ease;
   }
 
   .navbar__menu--open {
@@ -470,6 +504,7 @@
     pointer-events: auto;
   }
 
+  /* Fade + slide each item in when the panel opens */
   .navbar__menu > li {
     opacity: 0;
     transform: translateY(8px);
@@ -481,6 +516,7 @@
     transform: translateY(0);
   }
 
+  /* ── Mobile header banner ─────────────────────────────── */
   .navbar__mobile-header {
     display: block;
     padding: 16px;
@@ -518,10 +554,13 @@
     line-height: 1.55;
   }
 
+  /* ── Nav links ────────────────────────────────────────── */
   .navbar__link {
     width: 100%;
+    box-sizing: border-box;
     justify-content: space-between;
     padding: 14px 16px;
+    min-height: 48px; /* WCAG touch target */
     border-radius: 16px;
     font-size: 1rem;
     background: transparent;
@@ -542,60 +581,169 @@
     display: none;
   }
 
+  /* ── User account trigger ─────────────────────────────── */
+  /*
+   * A flex container cannot shrink its children below their intrinsic
+   * width unless the container itself has min-width: 0.
+   * Setting it here allows the username <span> to truncate with ellipsis
+   * instead of overflowing the panel on narrow screens.
+   */
+  .navbar__user-trigger {
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    min-width: 0; /* critical for flex truncation */
+    padding: 12px 16px;
+    gap: 10px;
+  }
+
+  /* Avatar is a fixed size — it must never shrink */
+  .navbar__user-trigger .navbar__avatar,
+  .navbar__user-trigger .navbar__avatar-img {
+    flex-shrink: 0;
+  }
+
+  /* Username fills the remaining width and clips with ellipsis */
+  .navbar__username {
+    flex: 1 1 auto;
+    min-width: 0;
+    max-width: none;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: left;
+  }
+
+  /* Chevron stays at the far right and never shrinks */
+  .navbar__user-trigger .navbar__chevron {
+    flex-shrink: 0;
+    margin-left: auto;
+  }
+
+  /* ── Mobile dropdown (accordion) ─────────────────────── */
+  /*
+   * On desktop: absolute float controlled by opacity/visibility.
+   * On mobile:  static accordion controlled by max-height.
+   *
+   * KEY RULE: the `transition` must be declared on the COLLAPSED
+   * (closed) state. Declaring it only on the open rule means the
+   * browser has no transition to reverse when closing.
+   */
   .navbar__dropdown-menu {
+    /* Remove all desktop absolute-position behaviour */
     position: static;
     top: auto;
     left: auto;
+    right: auto;
     transform: none;
-    min-width: 100%;
-    padding: 0;
-    margin-top: 8px;
-    border-radius: 16px;
+    /* Fill the parent column */
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    /* Reset desktop shadow & backdrop */
     box-shadow: none;
-    background: rgba(248, 250, 252, 0.92);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    z-index: auto;
+    /* Correct surface colour */
+    background: rgba(248, 250, 252, 0.98);
+    border: 1px solid transparent;
+    border-radius: 16px;
+    padding: 0;
+    margin-top: 6px;
+    /* Show by default but fully collapsed */
     opacity: 1;
     visibility: visible;
     pointer-events: auto;
+    /* Accordion transition — MUST be on the closed state */
     max-height: 0;
     overflow: hidden;
-    border: 1px solid transparent;
+    transition: max-height 0.32s ease, padding 0.22s ease, border-color 0.22s ease;
   }
 
+  /* Also reset the right-aligned user variant on mobile */
+  .navbar__dropdown-menu--user {
+    left: auto;
+    right: auto;
+    transform: none;
+    min-width: 0;
+  }
+
+  /* Open state: expand the accordion */
   .navbar__dropdown--open .navbar__dropdown-menu {
     padding: 8px;
-    max-height: 320px;
+    max-height: 420px; /* generous enough for any realistic item count */
     border-color: var(--border);
   }
 
-  .navbar__user-summary {
-    padding: 10px 10px 12px;
+  /* Dropdown items: touch-friendly, full-width */
+  .navbar__dropdown-menu li a,
+  .navbar__dropdown-menu li button {
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    min-height: 48px;
+    padding: 12px 14px;
   }
 
+  /* Logout button fills its container */
+  .navbar__logout-btn {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* User summary card inside the dropdown */
+  .navbar__user-summary {
+    padding: 10px 10px 14px;
+    min-width: 0; /* allows text children to truncate */
+  }
+
+  /* ── Auth section (guest / logged-out) ───────────────── */
   .navbar__auth {
+    display: flex;
     flex-direction: column;
     align-items: stretch;
+    gap: 8px; /* space between Login and Get Started */
     padding-top: 12px;
     margin-top: 4px;
     border-top: 1px solid var(--border);
   }
 
+  /* Both buttons: full-width, vertically centred, touch-friendly */
   .navbar__btn-login,
   .navbar__btn-register {
     width: 100%;
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
     justify-content: center;
     text-align: center;
+    min-height: 48px;
+    border-radius: 16px;
   }
 
   .navbar__btn-login {
     border: 1px solid var(--border);
     background: #fff;
+    color: var(--text);
+    font-size: 0.95rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: var(--transition);
   }
 
-  .navbar__username {
-    max-width: none;
+  .navbar__btn-login:hover {
+    border-color: rgba(37, 99, 235, 0.3);
+    background: rgba(37, 99, 235, 0.04);
+    color: var(--brand);
   }
 }
 
+/* =============================================================
+   SMALL PHONES  (≤480px)
+   ============================================================= */
 @media (max-width: 480px) {
   .navbar {
     --nav-height: 72px;
@@ -614,5 +762,24 @@
   .navbar__menu {
     right: 12px;
     width: calc(100vw - 24px);
+  }
+}
+
+/* =============================================================
+   EXTRA-SMALL PHONES  (≤320px)
+   ============================================================= */
+@media (max-width: 320px) {
+  .navbar__menu {
+    right: 8px;
+    width: calc(100vw - 16px);
+    padding: 10px;
+    border-radius: 18px;
+  }
+
+  .navbar__link,
+  .navbar__btn-login,
+  .navbar__btn-register {
+    font-size: 0.92rem;
+    padding: 12px 14px;
   }
 }

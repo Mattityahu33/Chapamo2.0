@@ -257,11 +257,14 @@
 .skills-section,
 .company-info-section,
 .responsibilities-section {
-  background: white;
+  background:white;
+
   border: 1px solid var(--neutral-200);
   border-radius: var(--radius-xl);
-  padding: var(--space-7);
+  padding: var(--space-5) var(--space-5);
   box-shadow: var(--shadow-xs);
+  width: 100%;
+
 }
 .job-description-section h3,
 .education-section h3,
@@ -283,6 +286,7 @@
   font-size: var(--text-sm);
   color: var(--neutral-600);
   line-height: 1.8;
+ 
 }
 .responsibilities-section { margin-top: var(--space-4); }
 .responsibilities-section h4 {
