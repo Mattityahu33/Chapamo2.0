@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "../../../restAPI/api";
 import "./UserManagement.css";
 
 const UserManagement = () => {
+  const navigate = useNavigate();
   const [users, setUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState("");
@@ -121,7 +123,13 @@ const UserManagement = () => {
                       Reactivate
                     </button>
                   )}
-                  <button onClick={() => window.location.href = `/admin/users/${user.id}`}>
+                  <button onClick={() => {
+                    if (user.portfolio_id) {
+                      navigate(`/portfolios/${user.portfolio_id}`);
+                    } else {
+                      alert("This user has not created a portfolio yet.");
+                    }
+                  }}>
                     View Details
                   </button>
                 </td>

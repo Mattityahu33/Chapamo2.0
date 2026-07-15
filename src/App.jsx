@@ -68,7 +68,7 @@ const App = () => (
       <Route path="/search" element={<SearchForm />} />
       <Route path="/admin" element={<AdminDashboard />} />
       <Route path="/admin/posts-management" element={<PostsManagement />} />
-      <Route path="/admin/user-mangement" element={<UserManagement />} />
+      <Route path="/admin/user-management" element={<UserManagement />} />
       <Route path="/admin/layout" element={<AdminLayout />} />
       <Route path="/admin/documentation" element={<ProjectDoc />} />
       <Route path="/user" element={<UserDashboard />} />
